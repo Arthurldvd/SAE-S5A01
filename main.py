@@ -27,6 +27,7 @@ def data():
     tInterval = int(request.args.get('interval'))
     mesures = request.args.get('mesures')
     discomfort = request.args.get('discomfort')
+    salle = request.args.get('salle')
 
     # Verification
     mesuresArgs = [mesures, discomfort]
@@ -37,6 +38,7 @@ def data():
             for m in mesuresArgs[i]:
                 if (m not in MESURES_LIST):
                     return error(f"'{m}' is not a known mesure.")
+
     if (tStart < 0): return error("Start timestamp can't be negative")
     if (tEnd < 0): return error("End timestamp can't be negative")
     if (tInterval < 0): return error("End timestamp can't be negative")
