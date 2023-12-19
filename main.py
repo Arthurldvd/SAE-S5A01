@@ -5,9 +5,7 @@ app = Flask(__name__)
 MESURES_LIST = ['co2', 'humidity', 'uv', 'db', 'temperature']
 
 def parseArray(array):
-    parsed_array = array.split(',')
-    parsed_array = [value for value in parsed_array]
-    return parsed_array
+    return [value for value in array.split(',')]
 
 def error(message: str):
     return {
