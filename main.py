@@ -7,4 +7,5 @@ client = InfluxDBClient(
     bucket = 'iut_bucket'
     )
 
-print(client.health())
+query_api = client.query_api()
+tables = query_api.query('from(bucket: "IUT_BUCKET") |> range(start: -1h)')
