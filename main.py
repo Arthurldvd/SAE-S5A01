@@ -3,9 +3,7 @@ from flask import Flask, request, jsonify
 app = Flask(__name__)
 
 def parseArray(array):
-    parsed_array = array.split(',')
-    parsed_array = [value for value in parsed_array]
-    return parsed_array
+    return [value for value in array.split(',')]
 
 def error(message: str):
     return {

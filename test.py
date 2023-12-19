@@ -17,5 +17,4 @@ data = request_influxBD(
 )
 
 constraints = init_conditions()
-# print(data)
-# check_constraint(data, constraints)
+check_constraint(data, constraints)
