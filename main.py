@@ -1,10 +1,10 @@
-from influxdb import InfluxDBClient
+from influxdb_client import InfluxDBClient
 
 client = InfluxDBClient(
-    host='51.83.36.122',
-    port=8086,
-    username='mbetti',
-    password='JeSorsDesNoiresAAtome!',
+    url = '51.83.36.122:8086',
+    token = 'q4jqYhdgRHuhGwldILZ2Ek1WzGPhyctQ3UgvOII-bcjEkxqqrIIacgePte33CEjekqsymMqWlXnO0ndRhLx19g==',
+    org = 'INFO',
+    bucket = 'iut_bucket'
     )
 
-print(client.get_list_database())
+print(client.health())
