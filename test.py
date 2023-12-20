@@ -5,8 +5,8 @@ from influxdb_service import init_influxdb, request_influxBD
 
 init_influxdb()
 data = request_influxBD(
-    '''from(bucket: "IUT_BUCKET")
-      |> range(start: 2023-11-30T00:00:00Z, stop: 2023-12-31T23:59:59Z)
+    f'''from(bucket: "IUT_BUCKET")
+      |> range(start: 1700408508, stop: 1703000508)
       |> filter(fn: (r) => r["_measurement"] == "ppm" or r["_measurement"] == "%" or r["_measurement"] == "°C" or r["_measurement"] == "dBA")
       |> filter(fn: (r) => r["_field"] == "value")
       |> filter(fn: (r) => r["domain"] == "sensor")

@@ -25,4 +25,3 @@ def request_influxBD(query_string):
             data.append(to_record(record))
 
     return data
-
