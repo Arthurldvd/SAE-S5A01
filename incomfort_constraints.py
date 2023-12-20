@@ -14,11 +14,12 @@ class Constraint:
 
 def init_conditions():
     constraints = [
-        Constraint('d251_1_co2_air_temperature', lambda data: data > 21, "La température excède 21°", "temperature"),
-        Constraint('d251_1_co2_air_temperature', lambda data: data < 19, "La température baisse 19°", "temperature"),
-        Constraint('d251_1_co2_carbon_dioxide_co2_level', lambda data: data > 5000, "La concentration de CO2 dépasse 5000°", "co2"),
-        Constraint('d251_1_co2_dew_point', lambda data: data > 10, "Le niveau de décibel dépasse 10°", "db"),
-        Constraint('d251_1_co2_humidity', lambda data: data > 50, "Le taux d'humidité dépasse 50%", "humidity")
+        Constraint('°C', lambda data: data > 21, "La température excède 21°", "temperature"),
+        Constraint('°C', lambda data: data < 19, "La température baisse 19°", "temperature"),
+        Constraint('ppm', lambda data: data > 5000, "La concentration de CO2 dépasse 5000°", "co2"),
+        Constraint('dBA', lambda data: data > 10, "Le niveau de décibel dépasse 10°", "db"),
+        Constraint('%', lambda data: data > 50, "Le taux d'humidité dépasse 50%", "humidity"),
+        Constraint('µg/m³', lambda data: data > 10, "Le niveau de particules dépasse 10 µg/m³", "co2")
     ]
 
     return constraints
@@ -30,32 +31,20 @@ def get_constraints(filter=None):
 
 def check_constraint(data: Record, constraints):
     distinct_times = set(entry._time for entry in data)
-    recordEdited = []
+
+    record_edited = []
     for time in distinct_times:
         records = []
-        inconforts = []
-        for constraint in get_constraints(constraints):
-             data_field = [x for x in data if x._time == time]
-             records.extend([x.to_dict() for x in data_field])
-             data_field_constraint = [x for x in data_field if x.entity_id == constraint.field and constraint.conditions(x._value)]
-             for record in data_field_constraint:
-                 inconfort = Inconfort(record._value, constraint.description)
-                 inconforts.append(inconfort.to_dict())
-        print(records)
-        print(records[0])
-        recordEdited.append(RecordEdited(time, records, inconforts))
+        data_field = [x for x in data if x._time == time]
 
-    return [x.to_dict() for x in recordEdited]
-    # for constraint in get_constraints(constraints):
-    #     data_field = [x for x in data if x.entity_id == constraint.field]
-    #     data_field_constraint = [x for x in data_field if constraint.conditions(x._value)]
-    #     for record in data_field_constraint:
-    #         # print(record)
-    #         inconfort = Inconfort(record._value, constraint.description)
-    #         record.inconforts.append(inconfort.__str__())
-    #
-    # grouped_data = {key: list(group) for key, group in groupby(data, key=lambda x: x._time)}
-    # print(grouped_data)
-    # return [x.to_dict() for x in data]
+        for constraint in get_constraints(constraints):
+            [setattr(x, 'inconforts', Inconfort(x._value, constraint.description).to_dict()) for x in data_field
+             if x._measurement == constraint.field and constraint.conditions(x._value)]
+
+        records.extend([x.to_dict() for x in data_field])
+        record_edited.append(RecordEdited(time, records).to_dict())
+
+    return record_edited
+
 
 

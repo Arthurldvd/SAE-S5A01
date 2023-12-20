@@ -71,6 +71,8 @@ def filter_data(tStart, tEnd, tInterval, measures, incomfort, salle):
           |> aggregateWindow(every: {tInterval}, fn: mean, createEmpty: false)
           |> yield(name: "mean")
         '''
+
+    print(request)
     data = request_influxBD(request)
     data_after_constraints = check_constraint(data, incomfort)
     return data_after_constraints

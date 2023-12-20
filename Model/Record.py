@@ -23,7 +23,8 @@ class Record:
             '_value': self._value,
             '_time': self._time,
             'domain': self.domain,
-            'entity_id': self.entity_id
+            'entity_id': self.entity_id,
+            'inconforts': self.inconforts
         }
         return data_dict
 
