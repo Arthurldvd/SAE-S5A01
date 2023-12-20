@@ -16,8 +16,14 @@ class Inconfort:
     def __str__(self):
         return f"_description: {self._description}, _value: {self._value}"
 
+    def to_dict(self):
+        data_dict = {
+            '_value': self._value,
+            '_description': self._description,
+        }
+        return data_dict
 
-def to_dict(data):
+def to_inconfort(data):
     return Inconfort(
         data['_value'],
         data['_description'],

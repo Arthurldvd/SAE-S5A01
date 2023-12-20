@@ -1,5 +1,9 @@
+from itertools import groupby
+
 from Model import Record
 from Model.Inconfort import Inconfort
+from Model.RecordEdited import RecordEdited
+
 
 class Constraint:
     def __init__(self, field, conditions, description, type):
@@ -25,17 +29,33 @@ def get_constraints(filter=None):
     return [c for c in init_conditions() if c.type in filter]
 
 def check_constraint(data: Record, constraints):
-    data.sort(key=lambda x: x._start)
-    print(constraints)
-    print(get_constraints(constraints))
-    for constraint in get_constraints(constraints):
-        data_field = [x for x in data if x.entity_id == constraint.field]
-        data_field_constraint = [x for x in data_field if constraint.conditions(x._value)]
-        for record in data_field_constraint:
-            # print(record)
-            inconfort = Inconfort(record._value, constraint.description)
-            record.inconforts.append(inconfort.__str__())
+    distinct_times = set(entry._time for entry in data)
+    recordEdited = []
+    for time in distinct_times:
+        records = []
+        inconforts = []
+        for constraint in get_constraints(constraints):
+             data_field = [x for x in data if x._time == time]
+             records.extend([x.to_dict() for x in data_field])
+             data_field_constraint = [x for x in data_field if x.entity_id == constraint.field and constraint.conditions(x._value)]
+             for record in data_field_constraint:
+                 inconfort = Inconfort(record._value, constraint.description)
+                 inconforts.append(inconfort.to_dict())
+        print(records)
+        print(records[0])
+        recordEdited.append(RecordEdited(time, records, inconforts))
 
-    return [x.to_dict() for x in data]
+    return [x.to_dict() for x in recordEdited]
+    # for constraint in get_constraints(constraints):
+    #     data_field = [x for x in data if x.entity_id == constraint.field]
+    #     data_field_constraint = [x for x in data_field if constraint.conditions(x._value)]
+    #     for record in data_field_constraint:
+    #         # print(record)
+    #         inconfort = Inconfort(record._value, constraint.description)
+    #         record.inconforts.append(inconfort.__str__())
+    #
+    # grouped_data = {key: list(group) for key, group in groupby(data, key=lambda x: x._time)}
+    # print(grouped_data)
+    # return [x.to_dict() for x in data]
 
 
