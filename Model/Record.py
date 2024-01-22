@@ -19,12 +19,12 @@ class Record:
 
     def to_dict(self):
         data_dict = {
-            '_measurement': self._measurement,
-            '_value': self._value,
-            '_time': self._time,
-            'domain': self.domain,
-            'entity_id': self.entity_id,
-            'inconforts': self.inconforts
+            'measurement': self._measurement,
+            'value': self._value,
+            #'_time': self._time,
+            #'domain': self.domain,
+            'sensorId': self.entity_id,
+            'discomfortList': self.inconforts
         }
         return data_dict
 
