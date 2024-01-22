@@ -1,3 +1,11 @@
+
+
+
+
+from datetime import datetime
+from time import time
+
+
 class RecordEdited:
     def __init__(self, _time, _value):
         self._time = _time
@@ -11,8 +19,8 @@ class RecordEdited:
 
     def to_dict(self):
         data_dict = {
-            '_time': self._time,
-            '_value': self._value,
+            'timestamp': datetime.timestamp(self._time),
+            'values': self._value,
         }
         return data_dict
 

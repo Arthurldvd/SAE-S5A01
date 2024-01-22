@@ -15,7 +15,6 @@ def init_influxdb():
 
     query_api = client.query_api()
 
-
 def request_influxBD(query_string):
     tables = query_api.query(query_string)
     data = []

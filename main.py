@@ -9,6 +9,7 @@ app = Flask(__name__)
 
 MEASURES_LIST = ['%', 'dBA', 'ppm', '°C', 'µg\/m³']
 DISCOMFORT_LIST = ['co2', 'humidity', 'uv', 'db', 'temperature']
+SALLES_LIST = ["d251", "d351", "d360"]
 
 def parseArray(array):
     if array is None: return None
@@ -50,12 +51,14 @@ def data():
     if (tStart < 0): return error("Start timestamp can't be negative.")
     if (tEnd < 0): return error("End timestamp can't be negative.")
     if (tStart > tEnd): return error("Start timestamp can't be superior to end timestamp.")
-    if not (regex_match(str(tInterval), r'^[1-9]+\d*(m|h|d|w|mo|y])$')): return error("Interval is not in a correct format.")
+    if (salle not in SALLES_LIST): return error(f"'{salle}' is not a known room.")
+    if not (regex_match(str(tInterval), r'^[1-9]+\d*(m|h|d|w|mo|y])$')): return error(f"Interval {tInterval} is not in a correct format.")
 
     return filter_data(tStart, tEnd, tInterval, convert_regex(measures), discomfort, salle)
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 def filter_data(tStart, tEnd, tInterval, measures, incomfort, salle):
     init_influxdb()
     request = f'''
@@ -72,7 +75,6 @@ def filter_data(tStart, tEnd, tInterval, measures, incomfort, salle):
           |> yield(name: "mean")
         '''
 
-    print(request)
     data = request_influxBD(request)
     data_after_constraints = check_constraint(data, incomfort)
     return data_after_constraints
