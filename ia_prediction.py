@@ -6,88 +6,94 @@ from keras.src.callbacks import Callback
 from keras.src.optimizers import Adam
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Input
-from influxdb_service import request_influxBD, init_influxdb
 
+from influxdb_service import filter_data, init_influxdb
 
+NUMBER_EPOCHS = 50
+PACKET_SIZE = 6
 
-def predict_temperature():
+def predict_temperature(tStart, tEnd, tInterval, measures, salle, prediction_hour):
     init_influxdb()
     #1 retourner un object comme dans IA.py (projet externe)
     #2 train le modèle avec une requête qui récupère TOUTES les températures de toutes les heures
     #3 prédire une heure en précisant l'heure, la prédiction se fera sur les x heures précedentes qui
     # ont du sens
     #4 filtrer la requete sur une seule salle
-    data = get_training_data()
-    train_ai(data)
+    data = get_training_data(tStart, tEnd, tInterval, measures, salle)
+    return train_ai(data_for_training(data, PACKET_SIZE), datetime.utcfromtimestamp(int(prediction_hour)))
 
-def get_training_data():
-    request = '''
-    from(bucket: "IUT_BUCKET")
-      |> range(start: 1700703993, stop: 1703172412)
-      |> filter(fn: (r) => r["_measurement"] == "°C")
-      |> filter(fn: (r) => r["_field"] == "value")
-      |> filter(fn: (r) => r["domain"] == "sensor")
-      |> filter(fn: (r) => r["entity_id"] == "d251_1_co2_air_temperature")
-      |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)
-      |> yield(name: "mean")'''
-    data = request_influxBD(request)
+def get_training_data(tStart, tEnd, tInterval, measures, salle):
+    # request = '''
+    # from(bucket: "IUT_BUCKET")
+    #   |> range(start: 1700703993, stop: 1703172412)
+    #   |> filter(fn: (r) => r["_measurement"] == "°C")
+    #   |> filter(fn: (r) => r["_field"] == "value")
+    #   |> filter(fn: (r) => r["domain"] == "sensor")
+    #   |> filter(fn: (r) => r["entity_id"] == "d251_1_co2_air_temperature")
+    #   |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)
+    #   |> yield(name: "mean")'''
+    data = filter_data(tStart, tEnd, tInterval, measures, salle)
     data.sort(key=lambda x: x._time)
     return data
 
-def train_ai(data):
-    # Extracting features from data
-    time_data = [datetime.timestamp(d._time) for d in data]
-    temperature_data = [d._value for d in data]
-    presence_data = [True for _ in data]
+def data_for_training(data, packet_size):
+    data_for_training = []
+    for i in range(len(data) - packet_size - 1):
+        DFT = {
+            'previous_temp': [d._value for d in data[i:i + packet_size]],
+            'previous_hours': [int(f"{d._time.month}{d._time.day}{d._time.hour}") for d in data[i:i + packet_size]],
+            'expected_temp': data[i + packet_size]._value
+        }
+        data_for_training.append(DFT)
 
-    # Creating datatable using numpy
-    datatable = np.column_stack((time_data, temperature_data, presence_data))
+    return data_for_training
 
-    # Creating sequences for training
-    seq_length = 3
-    X, y = create_sequences_with_presence(datatable, seq_length)
+def train_ai(data_training, prediction_hour):
+    X, y = create_sequences_with_targets(data_training)
 
     # Model architecture
     model = Sequential()
-    model.add(LSTM(50, activation='relu', return_sequences=True, input_shape=(seq_length, 3),kernel_initializer='glorot_uniform'))
-    model.add(LSTM(50, activation='relu'))
+    model.add(LSTM(1, activation='relu', return_sequences=True, input_shape=(2, PACKET_SIZE), kernel_initializer='glorot_uniform'))
+    model.add(LSTM(10))
     model.add(Dense(1))
     optimizer = Adam(learning_rate=0.001)
     model.compile(optimizer=optimizer, loss='mse')
-
-    # Predicting for the next hour using the latest available data
-    latest_time = time_data[-1]
-    latest_presence = presence_data[-1]
-    latest_temperature = temperature_data[-1]
 
     class PredictionsCallback(Callback):
         def __init__(self, input_sequence):
             self.input_sequence = input_sequence
 
         def on_epoch_end(self, epoch, logs=None):
-            predicted_temperature = self.model.predict(self.input_sequence, verbose=0)
+            global LAST_EPOCH_RESULT
+            predicted_temperature = self.model.predict(np.array(self.input_sequence), verbose=0)
             print(f"Epoch {epoch + 1} - Predicted Temperature: {predicted_temperature[0, 0]}")
+            if epoch + 1 == NUMBER_EPOCHS:
+                LAST_EPOCH_RESULT = predicted_temperature
 
-    # Training the model with the callback
-    input_sequence = np.array([time_data[-3:], temperature_data[-3:], presence_data[-3:]]).T
-    input_sequence = input_sequence.reshape((1, seq_length, 3))
+    prediction_hour = int(f"{prediction_hour.month}{prediction_hour.day}{prediction_hour.hour}")
+    input_sequence_entry = np.where(np.array([_x[0][len(_x[0]) - 1] == prediction_hour for _x in X]))[0][0]
+    print(f"NOUS VOULONS PREDIRE :  {y[input_sequence_entry - 1]}")
+
+    input_sequence = [np.array(X[input_sequence_entry - 1][0]), np.array(X[input_sequence_entry - 1][1])]
+    input_sequence = np.array(input_sequence)
+    input_sequence = input_sequence.reshape(-1, 2, PACKET_SIZE)
 
     predictions_callback = PredictionsCallback(input_sequence)
-    model.fit(X, y, epochs=100, batch_size=4, verbose=2, callbacks=[predictions_callback])
+    model.fit(X, y, epochs=NUMBER_EPOCHS, batch_size=1, verbose=2, callbacks=[predictions_callback])
 
-def create_sequences_with_presence(data, seq_length):
+    predicted_temperature = model.predict(np.array(input_sequence), verbose=0)
+
+    return LAST_EPOCH_RESULT
+
+
+def create_sequences_with_targets(data):
     sequences = []
-    target = []
-    for i in range(len(data) - seq_length):
-        seq = data[i:i + seq_length]
-        label = data[i + seq_length, 1]  # Temperature is the second column
-        sequences.append(seq)
-        target.append(label)
-    return np.array(sequences), np.array(target)
+    targets = []
+    for entry in data:
+        sequences.append((entry['previous_hours'], entry['previous_temp']))
+        targets.append(entry['expected_temp'])
+    return np.array(sequences), np.array(targets)
 
-def cross_table(time_data, temperature_data, presence_data, length):
-    datatable = np.column_stack((time_data, temperature_data, presence_data))
-    return datatable
-
-predict_temperature()
+# predict_temperature("1700703993", "1705932812", "1h", "°C", "d251_1_co2_air_temperature", datetime.utcfromtimestamp(1703059200))
+# predict_temperature("1700703993", "1705932812", "1h", "µg\/m³", "d351_1_multisensor9_particulate_matter_2_5", datetime.utcfromtimestamp(1703059200))
 
