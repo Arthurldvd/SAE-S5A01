@@ -5,6 +5,7 @@ class Record:
         self._time = _time
         self.domain = domain
         self.entity_id = entity_id
+        self.salle = entity_id.split("_")[0] if entity_id.split("_")[0] in salles else 'tetras'
         self.inconforts = []
 
     def __str__(self):
@@ -14,6 +15,7 @@ class Record:
             f"_time: {self._time}, "
             f"domain: {self.domain}, "
             f"entity_id: {self.entity_id}, "
+            f"salle: {self.salle}, "
             f"inconforts: {self.inconforts}"
         )
 
@@ -23,7 +25,8 @@ class Record:
             'value': self._value,
             #'_time': self._time,
             #'domain': self.domain,
-            'sensorId': self.entity_id,
+            'entity_id': self.entity_id,
+            'salle': self.salle,
             'discomfortList': self.inconforts
         }
         return data_dict
@@ -39,3 +42,5 @@ def to_record(data):
         data['domain'],
         data['entity_id']
     )
+
+salles = ['d251', 'd351', 'd360']

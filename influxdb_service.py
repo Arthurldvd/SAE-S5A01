@@ -27,7 +27,7 @@ def request_influxBD(query_string):
 
     return data
 
-def filter_data(tStart, tEnd, tInterval, measures, salle):
+def filter_data(bucket, tStart, tEnd, tInterval, measures, salle, output="mean"):
     measures = convert_regex(measures)
 
     init_influxdb()
@@ -35,14 +35,13 @@ def filter_data(tStart, tEnd, tInterval, measures, salle):
     import "strings"
     import "regexp"
 
-    from(bucket: "IUT_BUCKET")
+    from(bucket: "{bucket}")
           |> range(start: {tStart}, stop: {tEnd})
           |> filter(fn: (r) => r["_measurement"] =~ {measures})
           |> filter(fn: (r) => r["_field"] == "value")
-          |> filter(fn: (r) => r["domain"] == "sensor")
           |> filter(fn: (r) => strings.hasPrefix(v: r["entity_id"], prefix: "{salle}"))
           |> aggregateWindow(every: {tInterval}, fn: mean, createEmpty: false)
-          |> yield(name: "mean")
+          |> yield(name: "{output}")
         '''
 
     print(request)

@@ -20,7 +20,7 @@ def predict_temperature(tStart, tEnd, tInterval, measures, salle, prediction_hou
     # ont du sens
     #4 filtrer la requete sur une seule salle
     data = get_training_data(tStart, tEnd, tInterval, measures, salle)
-    return train_ai(data_for_training(data, PACKET_SIZE), datetime.utcfromtimestamp(int(prediction_hour)))
+    return train_ai(data_for_training(data, PACKET_SIZE), datetime.utcfromtimestamp(int("1703059200")))
 
 def get_training_data(tStart, tEnd, tInterval, measures, salle):
     # request = '''
@@ -68,6 +68,7 @@ def train_ai(data_training, prediction_hour):
             predicted_temperature = self.model.predict(np.array(self.input_sequence), verbose=0)
             print(f"Epoch {epoch + 1} - Predicted Temperature: {predicted_temperature[0, 0]}")
             if epoch + 1 == NUMBER_EPOCHS:
+                print(predicted_temperature)
                 LAST_EPOCH_RESULT = predicted_temperature
 
     prediction_hour = int(f"{prediction_hour.month}{prediction_hour.day}{prediction_hour.hour}")
@@ -80,11 +81,9 @@ def train_ai(data_training, prediction_hour):
 
     predictions_callback = PredictionsCallback(input_sequence)
     model.fit(X, y, epochs=NUMBER_EPOCHS, batch_size=1, verbose=2, callbacks=[predictions_callback])
-
     predicted_temperature = model.predict(np.array(input_sequence), verbose=0)
 
     return LAST_EPOCH_RESULT
-
 
 def create_sequences_with_targets(data):
     sequences = []
@@ -94,6 +93,6 @@ def create_sequences_with_targets(data):
         targets.append(entry['expected_temp'])
     return np.array(sequences), np.array(targets)
 
-# predict_temperature("1700703993", "1705932812", "1h", "°C", "d251_1_co2_air_temperature", datetime.utcfromtimestamp(1703059200))
-# predict_temperature("1700703993", "1705932812", "1h", "µg\/m³", "d351_1_multisensor9_particulate_matter_2_5", datetime.utcfromtimestamp(1703059200))
+# predict_temperature("1700703993", "1703059200", "1h", "°C", "d251_1_co2_air_temperature", "1703059200")
+# predict_temperature("1700703993", "1703059200", "1h", "µg\/m³", "d351_1_multisensor9_particulate_matter_2_5", "1703059200")
 
