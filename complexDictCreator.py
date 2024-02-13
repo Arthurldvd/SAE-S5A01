@@ -2,32 +2,36 @@ import datetime
 from audioop import avg
 
 from numpy import average
-
 from Model.Record import Record
-from clusterCreator import get_mesure
-
 
 def create_dict_classified(data, harmonizeData, supressErrors, *fields):
     result = {}
 
     def classify_data(data, fields):
         if len(fields) == 0:
-            return data
+            return classify_data_last_field(data)
 
         field = fields[0]
         classified_data = []
 
-        distinct_keys = set(getattr(entry, field) for entry in data)
+        distinct_keys = sorted(set(getattr(entry, field) for entry in data))
 
         for key in distinct_keys:
             filtered_data = [x for x in data if getattr(x, field) == key]
             tabledata = {
-                "id": key,
-                field: classify_data(filtered_data, fields[1:])
+                field: key,
+                "values": classify_data(filtered_data, fields[1:])
             }
             classified_data.append(tabledata)
 
         return classified_data
+    def classify_data_last_field(filtered_data):
+        if supressErrors:
+            filtered_data = suppress_errors_data(filtered_data)
+        if harmonizeData:
+            filtered_data = harmonize_data(filtered_data)
+
+        return filtered_data
 
     result = classify_data(data, fields)
     return result
