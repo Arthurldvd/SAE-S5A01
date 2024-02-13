@@ -3,7 +3,7 @@ from itertools import groupby
 from Model import Record
 from Model.Inconfort import Information
 from Model.RecordEdited import RecordEdited
-from complexDictCreator import create_dict_classified, convert_datetimeKeys, convert_to_json_serializable
+from complexDictCreator import create_dict_classified, convert_to_json_serializable
 from influxdb_service import filter_data
 
 
@@ -58,7 +58,6 @@ def modify_object(data: Record, constraints, harmonizeData, supressError):
 
     # DICTIONNAIRE / REUNISSEMENT DES DONNEES (GROUP BY) EN FONCTION DU TEMPS
     classified_data = create_dict_classified(data, harmonizeData, supressError, "salle", "_time", "_measurement")
-    classified_data = convert_datetimeKeys(classified_data)
     classified_data = convert_to_json_serializable(classified_data)
     return classified_data
 

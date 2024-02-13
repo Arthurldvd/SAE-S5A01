@@ -32,20 +32,6 @@ def create_dict_classified(data, harmonizeData, supressErrors, *fields):
     result = classify_data(data, fields)
     return result
 
-def convert_datetimeKeys(data):
-    if not isinstance(data, dict):
-        return data
-
-    converted_data = {}
-    for key, value in data.items():
-        if isinstance(key, datetime.datetime):
-            key = str(key)
-        if isinstance(value, dict):
-            value = convert_datetimeKeys(value)
-        converted_data[key] = value
-
-    return converted_data
-
 def convert_to_json_serializable(data):
     if isinstance(data, dict):
         return {key: convert_to_json_serializable(value) for key, value in data.items()}
@@ -53,8 +39,11 @@ def convert_to_json_serializable(data):
         return [convert_to_json_serializable(item) for item in data]
     elif isinstance(data, Record):
         return data.to_dict()
+    # elif isinstance(data, datetime.datetime):
+    #     return str(data)
     else:
         return str(data)
+
 def harmonize_data(filtered_data: [Record]):
     harmonized_data = Record(
         #_measurement
