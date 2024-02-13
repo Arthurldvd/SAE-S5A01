@@ -1,12 +1,22 @@
+from clusterCreator import get_mesure
+
+
 class Record:
-    def __init__(self, _measurement, _field, _value, _start, _stop, _time, domain, entity_id):
+    def __init__(self, _measurement, _field, _value, _start, _stop, _time, domain, entity_id, mesure=None):
         self._measurement = _measurement
+        self._field = _field
         self._value = _value
+        self._start = _start
+        self._stop = _stop
         self._time = _time
         self.domain = domain
         self.entity_id = entity_id
-        self.salle = entity_id.split("_")[0] if entity_id.split("_")[0] in salles else 'tetras'
-        self.inconforts = []
+        if isinstance(entity_id, list):
+            self.salle = entity_id[0].split("_")[0] if entity_id[0] is not None and entity_id[0].split("_")[0] in salles else 'tetras'
+        else:
+            self.salle = entity_id.split("_")[0] if entity_id is not None and entity_id.split("_")[0] in salles else 'tetras'
+        self.mesure = mesure if not None else get_mesure(self)
+        self.inconforts = None
 
     def __str__(self):
         return (
@@ -21,12 +31,12 @@ class Record:
 
     def to_dict(self):
         data_dict = {
-            'measurement': self._measurement,
+            # 'measurement': self._measurement,
             'value': self._value,
-            #'_time': self._time,
-            #'domain': self.domain,
-            'entity_id': self.entity_id,
-            'salle': self.salle,
+            # '_time': self._time,
+            # 'domain': self.domain,
+            # 'entity_id': self.entity_id,
+            # 'salle': self.salle,
             'discomfortList': self.inconforts
         }
         return data_dict

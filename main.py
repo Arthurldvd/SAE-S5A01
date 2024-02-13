@@ -76,14 +76,13 @@ def data():
     discomfort = parseArray(request.json.get('discomfort'))
     output = parseArray(request.json.get('output'))
     salle = request.json.get('salle') if request.json.get('salle') is not None else ""
-    harmonizeData = request.json.get('harmonizeData') if request.json.get('harmonizeData') is not None else False
+    supressError = request.json.get('supressError') if request.json.get('supressError') is not None else False
+    harmonizeData = request.json.get('harmonizeData') if request.json.get('harmonizeData') is not None else True
 
     # Verification
     if not isinstance(harmonizeData, bool):
         return error("harmonizeData should be a boolean")
 
-    print(output)
-    print(OUTPUT_TYPE[0])
     bucket = BUCKET_LIST[0] if bucket is None else [m for m in bucket if m in BUCKET_LIST][0] or error(
         f"Unknown measure(s): {', '.join(set(bucket) - set(BUCKET_LIST))}")
 
@@ -105,7 +104,7 @@ def data():
     filtered_data = filter_data(bucket, tStart, tEnd, tInterval, measures, salle, output)
 
     # filtered_data = group_by_time(filtered_data, harmonizeData)
-    return modify_object(filtered_data, discomfort)
+    return modify_object(filtered_data, discomfort, harmonizeData, supressError)
 
 
 @app.route('/ia_prediction')
