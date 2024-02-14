@@ -16,8 +16,10 @@ mesures = [
     Mesure('Décibels', lambda record: record._measurement == 'dBA'),
     Mesure('Luminosité', lambda record: record._measurement == 'lx'),
     Mesure('Co2', lambda record: record._measurement == 'ppm' and record.entity_id.endswith('co2_level')),
-    Mesure('Co2 Volatil', lambda record: record._measurement == 'ppm' and record.entity_id.endswith('organic_compound_level')),
+    Mesure('Co2 Volatile', lambda record: record._measurement == 'ppm' and record.entity_id.endswith('organic_compound_level')),
     Mesure('Température', lambda record: record._measurement == '°C' and (lambda record: record.entity_id.endswith('air_temperature') or record.entity_id.endswith('air_temperature_2'))),
     Mesure('co2 Dew', lambda record: record._measurement == '°C' and record.entity_id.endswith('co2_dew_point')),
     Mesure('Particules', lambda record: record._measurement == 'µg/m³')
 ]
+
+

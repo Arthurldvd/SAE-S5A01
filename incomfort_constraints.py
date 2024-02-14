@@ -19,12 +19,17 @@ class ConditionsInfo:
 def init_conditions():
     conditions_to_check = [
         # Constraints
-        ConditionsInfo('TG21', '°C', lambda data: data > 21, "La température excède 21°", "temperature", True),
-        ConditionsInfo('TL19', '°C', lambda data: data < 19, "La température baisse 19°", "temperature", True),
-        ConditionsInfo('CG5K', 'ppm', lambda data: data > 5000, "La concentration de CO2 dépasse 5000°", "co2", True),
-        ConditionsInfo('DL10', 'dBA', lambda data: data > 10, "Le niveau de décibel dépasse 10°", "db", True),
-        ConditionsInfo('HG50', '%', lambda data: data > 50, "Le taux d'humidité dépasse 50%", "humidity", True),
-        ConditionsInfo('PG10', 'µg/m³', lambda data: data > 10, "Le niveau de particules dépasse 10 µg/m³", "co2", True),
+        ConditionsInfo('TG21', 'Température', lambda data: data > 21, "La température excède 21°", "temperature", True),
+        ConditionsInfo('TL19', 'Température', lambda data: data < 19, "La température baisse 19°", "temperature", True),
+        ConditionsInfo('TL19', 'co2 Dew', lambda data: data > 21, "La température baisse 19°", "temperature", True), #!!!!
+        ConditionsInfo('TL19', 'co2 Dew', lambda data: data < 19, "La température baisse 19°", "temperature", True), # !!!!
+        ConditionsInfo('CG5K', 'Co2', lambda data: data > 5000, "La concentration de CO2 dépasse 5000°", "co2", True),
+        ConditionsInfo('CG5K', 'Co2 Volatile', lambda data: data > 5, "La quantité de CO2 volatile dépasse 5", "co2", True), # !!!!
+        ConditionsInfo('DL10', 'Décibels', lambda data: data > 10, "Le niveau de décibel dépasse 10°", "db", True),
+        ConditionsInfo('HG50', 'Humidité', lambda data: data > 50, "Le taux d'humidité dépasse 50%", "humidity", True),
+        ConditionsInfo('HG50', 'Fumée', lambda data: data > 50, "Le taux de fumée dépasse 50%", "humidity", True), # !!!!
+        ConditionsInfo('HG50', 'Luminosité', lambda data: data > 50, "Le taux de lumière dépasse 50%", "humidity", True),
+        ConditionsInfo('PG10', 'Particules', lambda data: data > 10, "Le niveau de particules dépasse 10 µg/m³", "co2", True), # !!!!
 
         ConditionsInfo('BSHP', 'binary_sensor.d251_1_co2_highly_polluted', lambda data: data == 1, "La salle est très polluée", "co2", True),
         ConditionsInfo('BSHP', 'binary_sensor.d231_1_co2_highly_polluted', lambda data: data == 1, "La salle est très polluée", "co2", True),
@@ -54,7 +59,7 @@ def modify_object(data: Record, constraints, harmonizeData, supressError):
     # POUR CHAQUE TEMPS, AJOUT DE CONTRAINTES SI UNE DES CONTRAINTES PROBLEME
     for constraint in get_constraints(constraints):
         [setattr(x, 'inconforts', constraint.code) for x in data
-        if x._measurement == constraint.field and constraint.conditions(x._value)]
+        if x.mesure == constraint.field and constraint.conditions(x._value)]
 
     # DICTIONNAIRE / REUNISSEMENT DES DONNEES (GROUP BY) EN FONCTION DU TEMPS
     classified_data = create_dict_classified(data, harmonizeData, supressError, "salle", "time", "mesure")
