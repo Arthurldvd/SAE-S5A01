@@ -57,7 +57,7 @@ def modify_object(data: Record, constraints, harmonizeData, supressError):
         if x._measurement == constraint.field and constraint.conditions(x._value)]
 
     # DICTIONNAIRE / REUNISSEMENT DES DONNEES (GROUP BY) EN FONCTION DU TEMPS
-    classified_data = create_dict_classified(data, harmonizeData, supressError, "salle", "_time", "mesure")
+    classified_data = create_dict_classified(data, harmonizeData, supressError, "salle", "time", "mesure")
     classified_data = convert_to_json_serializable(classified_data)
     return classified_data
 
@@ -82,6 +82,6 @@ MEASURES_LIST = ['%', 'dBA', 'ppm', '°C', 'µg/m³', 'lx',
 DISCOMFORT_LIST = ['co2', 'humidity', 'uv', 'db', 'temperature']
 
 filtered_data = filter_data("IUT_BUCKET", "1700703993", "1703172412", "1h", MEASURES_LIST, "", "mean")
-filtered_data = modify_object(filtered_data, DISCOMFORT_LIST, False, True)
+filtered_data = modify_object(filtered_data, DISCOMFORT_LIST, True, False)
 
 

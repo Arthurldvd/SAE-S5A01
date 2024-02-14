@@ -45,17 +45,17 @@ def error(message: str):
     }), 400
 
 
-def group_by_time(filtered_data, harmonizeData):
-    distinct_times = set(entry._time for entry in filtered_data)
+def group_bytime(filtered_data, harmonizeData):
+    distincttimes = set(entry.time for entry in filtered_data)
 
     if harmonizeData:
-        for time in distinct_times:
-            data_field = [x for x in filtered_data if x._time == time]
+        for time in distincttimes:
+            data_field = [x for x in filtered_data if x.time == time]
 
         return data_field
 
-    for time in distinct_times:
-        data_field = [x for x in filtered_data if x._time == time]
+    for time in distincttimes:
+        data_field = [x for x in filtered_data if x.time == time]
 
     return data_field
 
@@ -103,7 +103,7 @@ def data():
 
     filtered_data = filter_data(bucket, tStart, tEnd, tInterval, measures, salle, output)
 
-    # filtered_data = group_by_time(filtered_data, harmonizeData)
+    # filtered_data = group_bytime(filtered_data, harmonizeData)
     return modify_object(filtered_data, discomfort, harmonizeData, supressError)
 
 

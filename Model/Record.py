@@ -2,13 +2,13 @@ from clusterCreator import get_mesure
 
 
 class Record:
-    def __init__(self, _measurement, _field, _value, _start, _stop, _time, domain, entity_id, mesure=None):
+    def __init__(self, _measurement, _field, _value, _start, _stop, time, domain, entity_id, mesure=None):
         self._measurement = _measurement
         self._field = _field
         self._value = _value
         self._start = _start
         self._stop = _stop
-        self._time = _time
+        self.time = time
         self.domain = domain
         self.entity_id = entity_id
         if isinstance(entity_id, list):
@@ -22,7 +22,7 @@ class Record:
         return (
             f"_measurement: {self._measurement}, "
             f"_value: {self._value}, "
-            f"_time: {self._time}, "
+            f"time: {self.time}, "
             f"domain: {self.domain}, "
             f"entity_id: {self.entity_id}, "
             f"salle: {self.salle}, "
@@ -31,9 +31,10 @@ class Record:
 
     def to_dict(self):
         data_dict = {
+            'mesure': self.mesure,
             # 'measurement': self._measurement,
             'value': self._value,
-            # '_time': self._time,
+            # 'time': self.time,
             # 'domain': self.domain,
             # 'entity_id': self.entity_id,
             # 'salle': self.salle,

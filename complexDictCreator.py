@@ -6,11 +6,10 @@ from Model.Record import Record
 from scipy.stats import zscore
 
 def create_dict_classified(data, harmonizeData, supressErrors, *fields):
-    result = {}
 
     def classify_data(data, fields):
         if len(fields) == 0:
-            return classify_data_last_field(data)
+            return data
 
         field = fields[0]
         classified_data = []
@@ -18,12 +17,17 @@ def create_dict_classified(data, harmonizeData, supressErrors, *fields):
         distinct_keys = sorted(set(getattr(entry, field) for entry in data))
 
         for key in distinct_keys:
-            filtered_data = [x for x in data if getattr(x, field) == key]
-            tabledata = {
-                field: key,
-                "values": classify_data(filtered_data, fields[1:])
-            }
-            classified_data.append(tabledata)
+            if len(fields) == 1:
+                filtered_data = [x for x in data if getattr(x, field) == key]
+                tabledata = classify_data_last_field(filtered_data)
+                classified_data.append(tabledata)
+            else:
+                filtered_data = [x for x in data if getattr(x, field) == key]
+                tabledata = {
+                    field: key,
+                    "values": classify_data(filtered_data, fields[1:])
+                }
+                classified_data.append(tabledata)
 
         return classified_data
     def classify_data_last_field(filtered_data):
@@ -64,8 +68,8 @@ def harmonize_data(filtered_data: [Record]):
         filtered_data[0]._stop if all(
             obj._stop == filtered_data[0]._stop for obj in filtered_data) else "error",
 
-        filtered_data[0]._time if all(
-            obj._time == filtered_data[0]._time for obj in filtered_data) else "error",
+        filtered_data[0].time if all(
+            obj.time == filtered_data[0].time for obj in filtered_data) else "error",
 
         filtered_data[0].domain if all(
             obj.domain == filtered_data[0].domain for obj in filtered_data) else "error",

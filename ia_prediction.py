@@ -33,7 +33,7 @@ def get_training_data(tStart, tEnd, tInterval, measures, salle):
     #   |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)
     #   |> yield(name: "mean")'''
     data = filter_data(tStart, tEnd, tInterval, measures, salle)
-    data.sort(key=lambda x: x._time)
+    data.sort(key=lambda x: x.time)
     return data
 
 def data_for_training(data, packet_size):
@@ -41,7 +41,7 @@ def data_for_training(data, packet_size):
     for i in range(len(data) - packet_size - 1):
         DFT = {
             'previous_temp': [d._value for d in data[i:i + packet_size]],
-            'previous_hours': [int(f"{d._time.month}{d._time.day}{d._time.hour}") for d in data[i:i + packet_size]],
+            'previous_hours': [int(f"{d.time.month}{d.time.day}{d.time.hour}") for d in data[i:i + packet_size]],
             'expected_temp': data[i + packet_size]._value
         }
         data_for_training.append(DFT)
