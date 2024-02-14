@@ -4,7 +4,10 @@ class Mesure:
         self.conditions = conditions
 
 def get_mesure(record):
-    return next((mesure.name for mesure in mesures if mesure.conditions(record)), None)
+    mesure_name = next((mesure.name for mesure in mesures if mesure.conditions(record)), None)
+    if callable(mesure_name):
+        return mesure_name(record)
+    return mesure_name
 
 mesures = [
     Mesure('Mesure d\'humidié dans l\'air en %', lambda record: record._measurement == '%' and record.entity_id != 'd351_1_multisensor9_smoke_density'),

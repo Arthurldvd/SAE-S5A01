@@ -1,8 +1,9 @@
 import datetime
 from audioop import avg
 
-from numpy import average
+from numpy import average, where, abs
 from Model.Record import Record
+from scipy.stats import zscore
 
 def create_dict_classified(data, harmonizeData, supressErrors, *fields):
     result = {}
@@ -43,8 +44,6 @@ def convert_to_json_serializable(data):
         return [convert_to_json_serializable(item) for item in data]
     elif isinstance(data, Record):
         return data.to_dict()
-    # elif isinstance(data, datetime.datetime):
-    #     return str(data)
     else:
         return str(data)
 
@@ -79,6 +78,11 @@ def harmonize_data(filtered_data: [Record]):
     harmonized_data.inconforts = list(set([x.inconforts for x in filtered_data if x.inconforts is not None]))
     return harmonized_data
 def suppress_errors_data(filtered_data):
+    # THRESHOLD TO DEFINE
+
+    z_scores = zscore([x._value for x in filtered_data])
+    obsolete_data_index = [index for index, value in enumerate(z_scores) if abs(value) > 3]
+    filtered_data = [value for index, value in enumerate(filtered_data) if index not in obsolete_data_index]
     return filtered_data
 
 

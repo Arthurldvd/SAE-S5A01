@@ -15,7 +15,7 @@ class Record:
             self.salle = entity_id[0].split("_")[0] if entity_id[0] is not None and entity_id[0].split("_")[0] in salles else 'tetras'
         else:
             self.salle = entity_id.split("_")[0] if entity_id is not None and entity_id.split("_")[0] in salles else 'tetras'
-        self.mesure = mesure if not None else get_mesure(self)
+        self.mesure = mesure if mesure is not None else get_mesure(self)
         self.inconforts = None
 
     def __str__(self):

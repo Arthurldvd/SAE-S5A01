@@ -76,7 +76,7 @@ def data():
     discomfort = parseArray(request.json.get('discomfort'))
     output = parseArray(request.json.get('output'))
     salle = request.json.get('salle') if request.json.get('salle') is not None else ""
-    supressError = request.json.get('supressError') if request.json.get('supressError') is not None else False
+    supressError = request.json.get('supress_errors') if request.json.get('supress_errors') is not None else False
     harmonizeData = request.json.get('harmonize_data') if request.json.get('harmonize_data') is not None else True
 
     # Verification
