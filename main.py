@@ -59,25 +59,29 @@ def group_bytime(filtered_data, harmonizeData):
 
     return data_field
 
+from flask import Flask, request
+import re
+
+app = Flask(__name__)
 
 @app.route('/data')
 def data():
     required_args = ['bucket', 'start', 'end', 'interval']
     for arg in required_args:
-        if arg not in request.json:
-            return error(f'Missing argument : {arg}')
+        if arg not in request.args:
+            return error(f'Missing argument: {arg}')
 
     # Getting parameters
-    bucket = parseArray(request.json.get('bucket'))
-    tStart = int(request.json.get('start'))
-    tEnd = int(request.json.get('end'))
-    tInterval = (request.json.get('interval'))
-    measures = parseArray(request.json.get('measures'))
-    discomfort = parseArray(request.json.get('discomfort'))
-    output = parseArray(request.json.get('output'))
-    salle = request.json.get('salle') if request.json.get('salle') is not None else ""
-    supressError = request.json.get('supress_errors') if request.json.get('supress_errors') is not None else False
-    harmonizeData = request.json.get('harmonize_data') if request.json.get('harmonize_data') is not None else True
+    bucket = parseArray(request.args.get('bucket'))
+    tStart = int(request.args.get('start'))
+    tEnd = int(request.args.get('end'))
+    tInterval = request.args.get('interval')
+    measures = parseArray(request.args.get('measures'))
+    discomfort = parseArray(request.args.get('discomfort'))
+    output = parseArray(request.args.get('output'))
+    salle = request.args.get('salle', "")
+    supressError = request.args.get('supress_errors', False, type=bool)
+    harmonizeData = request.args.get('harmonize_data', True, type=bool)
 
     # Verification
     if not isinstance(harmonizeData, bool):
@@ -93,12 +97,12 @@ def data():
         f"Unknown discomfort(s): {', '.join(set(discomfort) - set(DISCOMFORT_LIST))}")
 
     output = 'mean' if output is None else [m for m in output if m in OUTPUT_TYPE][0] or error(
-        f"Unknown output or several outputs : can only get one: {output}")
+        f"Unknown output or several outputs: can only get one: {output}")
 
     if tStart < 0: return error("Start timestamp can't be negative.")
     if tEnd < 0: return error("End timestamp can't be negative.")
     if tStart > tEnd: return error("Start timestamp can't be superior to end timestamp.")
-    if not (regex_match(str(tInterval), r'^[1-9]+\d*(m|h|d|w|mo|y])$')): return error(
+    if not (re.match(r'^[1-9]+\d*(m|h|d|w|mo|y)$', str(tInterval))): return error(
         "Interval is not in a correct format.")
 
     filtered_data = filter_data(bucket, tStart, tEnd, tInterval, measures, salle, output)
@@ -111,19 +115,19 @@ def data():
 def ia_prediction():
     required_args = ['measures', 'salle', 'prediction_hour']
     for arg in required_args:
-        if arg not in request.json:
-            return error(f'Missing argument : {arg}')
+        if arg not in request.args:
+            return error(f'Missing argument: {arg}')
 
     # Getting parameters (REQUIRED)
-    measures = parseArray(request.json.get('measures'))
-    salle = request.json.get('salle')
-    prediction_hour = request.json.get('prediction_hour')
-    output = parseArray(request.json.get('output'))
+    measures = parseArray(request.args.get('measures'))
+    salle = request.args.get('salle')
+    prediction_hour = request.args.get('prediction_hour')
+    output = parseArray(request.args.get('output'))
 
     # Getting parameters (OPTIONNALS)
-    tStart = int(request.json.get('start')) if not None else "1700703993"
-    tEnd = int(request.json.get('end')) if not None else "1703172412"
-    tInterval = (request.json.get('interval')) if not None else "1h"
+    tStart = int(request.args.get('start', "1700703993"))
+    tEnd = int(request.args.get('end', "1703172412"))
+    tInterval = request.args.get('interval', "1h")
 
     # Verification
     measures = MEASURES_LIST if measures is None else [m for m in measures if m in MEASURES_LIST] or error(
@@ -135,15 +139,11 @@ def ia_prediction():
     if tStart < 0: return error("Start timestamp can't be negative.")
     if tEnd < 0: return error("End timestamp can't be negative.")
     if tStart > tEnd: return error("Start timestamp can't be superior to end timestamp.")
-    if not (regex_match(str(tInterval), r'^[1-9]+\d*(m|h|d|w|mo|y])$')): return error(
+    if not (re.match(r'^[1-9]+\d*(m|h|d|w|mo|y)$', str(tInterval))): return error(
         "Interval is not in a correct format.")
 
     filtered_data = predict_temperature(tStart, tEnd, tInterval, measures, salle, prediction_hour)
     return str(filtered_data[0][0])
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
 
 
 def regex_match(input_string, regex_pattern):
