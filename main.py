@@ -106,9 +106,8 @@ def data():
     if not (re.match(r'^[1-9]+\d*(m|h|d|w|mo|y)$', str(tInterval))): return error(
         "Interval is not in a correct format.")
 
-    print(measures)
     filtered_data = filter_data(bucket, tStart, tEnd, tInterval, measures, salle, output)
-    return {modify_object(filtered_data, discomfort, harmonizeData, supressError)}
+    return {'data': modify_object(filtered_data, discomfort, harmonizeData, supressError)}
 
 
 @app.route('/ia_prediction')
