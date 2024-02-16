@@ -4,12 +4,12 @@ class Mesure:
         self.conditions = conditions
 
 def get_mesure(record):
-    mesure_name = next((mesure.name for mesure in mesures if mesure.conditions(record)), None)
+    mesure_name = next((mesure.name for mesure in mesures_iut if mesure.conditions(record)), None)
     if callable(mesure_name):
         return mesure_name(record)
     return mesure_name
 
-mesures = [
+mesures_iut = [
     Mesure('Humidité', lambda record: record._measurement == '%' and record.entity_id != 'd351_1_multisensor9_smoke_density'),
     Mesure('Fumée', lambda record: record._measurement == '%' and record.entity_id == 'd351_1_multisensor9_smoke_density'),
     Mesure(lambda record: record._measurement, lambda record: record._measurement.startswith('binary_sensor')),
@@ -17,9 +17,24 @@ mesures = [
     Mesure('Luminosité', lambda record: record._measurement == 'lx'),
     Mesure('Co2', lambda record: record._measurement == 'ppm' and record.entity_id.endswith('co2_level')),
     Mesure('Co2 Volatile', lambda record: record._measurement == 'ppm' and record.entity_id.endswith('organic_compound_level')),
-    Mesure('Température', lambda record: record._measurement == '°C' and (lambda record: record.entity_id.endswith('air_temperature') or record.entity_id.endswith('air_temperature_2'))),
+    Mesure('Température', lambda record: record._measurement == '°C' and (record.entity_id.endswith('air_temperature') or record.entity_id.endswith('air_temperature_2'))),
     Mesure('co2 Dew', lambda record: record._measurement == '°C' and record.entity_id.endswith('co2_dew_point')),
-    Mesure('Particules', lambda record: record._measurement == 'µg/m³')
+    Mesure('Particules', lambda record: record._measurement == 'µg/m³'),
+    Mesure('Ultra violets', lambda record: record._measurement == 'UV index')
+]
+
+mesures_tetras = [
+    Mesure('Ultra violets', lambda record: record._measurement == 'UV Index' and record.friendly_name.endswith('Ultraviolet')),
+    Mesure('Humidité', lambda record: record._measurement == '%' and not record.friendly_name.endswith('battery level')),
+    Mesure('Battery', lambda record: record._measurement == '%' and record.friendly_name.endswith('battery level')),
+    Mesure('Décibels', lambda record: record._measurement == 'dBA'),
+    Mesure('Luminosité', lambda record: record._measurement == 'lx'),
+    Mesure('Dioxide Co2', lambda record: record._measurement == 'ppm' and record.entity_id.contains('dioxide_co2')),
+    Mesure('Dioxide Co2', lambda record: record._measurement == 'ppm' and record.entity_id.contains('volatile_organic')),
+    Mesure(lambda record: record.entity_id, lambda record: record._measurement == 'units'),
+    Mesure('Température', lambda record: record._measurement == '°C' and record.entity_id.contains('air_temperature')),
+    Mesure('co2 Dew', lambda record: record._measurement == '°C' and record.entity_id.contains('dew_point')),
+    Mesure('Particules', lambda record: record._measurement == 'µg/m³'),
 ]
 
 

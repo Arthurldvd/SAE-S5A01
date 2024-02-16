@@ -28,6 +28,7 @@ def request_influxBD(query_string):
     return data
 
 def filter_data(bucket, tStart, tEnd, tInterval, measures, salle, output="mean"):
+    #|> filter(fn: (r) => r["_measurement"] =~ {measures})
     measures = convert_regex(measures)
 
     init_influxdb()
@@ -37,7 +38,6 @@ def filter_data(bucket, tStart, tEnd, tInterval, measures, salle, output="mean")
 
     from(bucket: "{bucket}")
           |> range(start: {tStart}, stop: {tEnd})
-          |> filter(fn: (r) => r["_measurement"] =~ {measures})
           |> filter(fn: (r) => r["_field"] == "value")
           |> filter(fn: (r) => strings.hasPrefix(v: r["entity_id"], prefix: "{salle}"))
           |> aggregateWindow(every: {tInterval}, fn: mean, createEmpty: false)
@@ -45,7 +45,7 @@ def filter_data(bucket, tStart, tEnd, tInterval, measures, salle, output="mean")
         '''
 
     print(request)
-    return request_influxBD(request)
+    return [x for x in request_influxBD(request) if x.mesure in measures]
 
 def convert_regex(table):
     table = [element.replace('/', '\/') for element in table]

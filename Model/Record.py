@@ -36,7 +36,7 @@ class Record:
             'value': self._value,
             # 'time': self.time,
             # 'domain': self.domain,
-            # 'entity_id': self.entity_id,
+            'entity_id': self.entity_id,
             # 'salle': self.salle,
             'discomfortList': self.inconforts
         }

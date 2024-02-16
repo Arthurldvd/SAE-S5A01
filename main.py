@@ -6,11 +6,12 @@ from flask import Flask, request, jsonify
 from ia_prediction import predict_temperature
 from incomfort_constraints import modify_object
 from influxdb_service import filter_data
+from window_detection import window_detection
 
 app = Flask(__name__)
 
-MEASURES_LIST = ['%', 'dBA', 'ppm', '°C', 'µg/m³', 'lx',
-                 "binary_sensor.d251_1_co2_highly_polluted",
+MEASURES_LIST = ["Humidité", "Fumée", "Décibels", "Luminosité", "Co2", "Co2 Volatile", "Température", "co2 Dew",
+                 "Particules", "Ultra violets", "binary_sensor.d251_1_co2_highly_polluted",
                  "binary_sensor.d251_1_co2_moderately_polluted",
                  "binary_sensor.d251_1_co2_slightly_polluted",
                  "binary_sensor.d251_1_multisensor_motion_detection",
@@ -102,8 +103,6 @@ def data():
         "Interval is not in a correct format.")
 
     filtered_data = filter_data(bucket, tStart, tEnd, tInterval, measures, salle, output)
-
-    # filtered_data = group_bytime(filtered_data, harmonizeData)
     return modify_object(filtered_data, discomfort, harmonizeData, supressError)
 
 
@@ -140,6 +139,10 @@ def ia_prediction():
 
     filtered_data = predict_temperature(tStart, tEnd, tInterval, measures, salle, prediction_hour)
     return str(filtered_data[0][0])
+
+@app.route('/window')
+def window():
+    return window_detection()
 
 
 if __name__ == '__main__':
