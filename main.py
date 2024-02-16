@@ -77,8 +77,8 @@ def data():
     tStart = int(request.args.get('start'))
     tEnd = int(request.args.get('end'))
     tInterval = request.args.get('interval')
-    measures = parseArray(request.args.get('measures')).join(' ')
-    discomfort = parseArray(request.args.get('discomfort')).join(' ')
+    measures = parseArray(request.args.get('measures'))
+    discomfort = parseArray(request.args.get('discomfort'))
     output = parseArray(request.args.get('output'))
     salle = request.args.get('salle', "")
     supressError = request.args.get('supress_errors', False, type=bool)
@@ -106,6 +106,7 @@ def data():
     if not (re.match(r'^[1-9]+\d*(m|h|d|w|mo|y)$', str(tInterval))): return error(
         "Interval is not in a correct format.")
 
+    print(measures)
     filtered_data = filter_data(bucket, tStart, tEnd, tInterval, measures, salle, output)
     return modify_object(filtered_data, discomfort, harmonizeData, supressError)
 
