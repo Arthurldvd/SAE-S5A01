@@ -108,7 +108,7 @@ def data():
 
     print(measures)
     filtered_data = filter_data(bucket, tStart, tEnd, tInterval, measures, salle, output)
-    return modify_object(filtered_data, discomfort, harmonizeData, supressError)
+    return {modify_object(filtered_data, discomfort, harmonizeData, supressError)}
 
 
 @app.route('/ia_prediction')
