@@ -1,5 +1,6 @@
 import datetime
 from audioop import avg
+import re
 
 from numpy import average, where, abs
 from Model.Record import Record
@@ -89,5 +90,38 @@ def suppress_errors_data(filtered_data):
     filtered_data = [value for index, value in enumerate(filtered_data) if index not in obsolete_data_index]
     return filtered_data
 
+def create_custom_object(data, param):
+    param = param.replace(" ", "").replace("\n", "")
+    if not param:
+        return data
+
+    string_param = next((x for x in re.split(r'#', param) if x), None)
+
+    if string_param.endswith('::object'):
+        field_name = string_param.replace('::object', '')
+        data = {field_name: create_custom_object(data, param.replace(f"{string_param}#", ""))}
+
+    if string_param.endswith('::list'):
+        field = string_param.replace('::list', '').replace('$', '')
+        distinct_keys = sorted(set(getattr(entry, field) for entry in data))
+
+        classified_data = []
+
+        for key in distinct_keys:
+            filtered_data = [x for x in data if getattr(x, field) == key]
+            classified_data.append({
+                field: key,
+                "values": create_custom_object(filtered_data, param.replace(f"{string_param}#", ""))
+            })
+
+        return classified_data
+
+    if string_param.endswith('::classAttributes'):
+        return create_custom_object(
+            [{attr: getattr(entry, attr) for attr in re.split(r'[$|::]+', string_param)[1:-1]} for entry in data],
+            param.replace(f"{string_param}#", "")
+        )
+
+    return data
 
 

@@ -3,7 +3,7 @@ from itertools import groupby
 from Model import Record
 from Model.Inconfort import Information
 from Model.RecordEdited import RecordEdited
-from complexDictCreator import create_dict_classified, convert_to_json_serializable
+from complexDictCreator import create_dict_classified, convert_to_json_serializable, create_custom_object
 from influxdb_service import filter_data
 
 
@@ -55,7 +55,6 @@ def get_constraints(filter=None):
     return [c for c in init_conditions() if c.type in filter]
 
 def modify_object(data: Record, constraints, harmonizeData, supressError):
-    print([x._value for x in data])
     # POUR CHAQUE TEMPS, AJOUT DE CONTRAINTES SI UNE DES CONTRAINTES PROBLEME
     for constraint in get_constraints(constraints):
         [setattr(x, 'inconforts', constraint.code) for x in data
@@ -84,7 +83,22 @@ MEASURES_LIST = ['%', 'dBA', 'ppm', '°C', 'µg/m³', 'lx',
                  "binary_sensor.d360_1_co2_slightly_polluted"
                  "binary_sensor.d360_1_co2_multisensor_motion_detection"]
 
-filtered_data = filter_data("IUT_BUCKET", "1700703993", "1703172412", "1h", MEASURES_LIST, "", "mean")
-filtered_data = modify_object(filtered_data, None, True, False)
+# filtered_data = filter_data("IUT_BUCKET", "1700703993", "1703172412", "1h", MEASURES_LIST, "", "mean")
+# filtered_data = {'data': modify_object(filtered_data, None, True, False)}
+
+data = filter_data("IUT_BUCKET", "1700703993", "1703172412", "1h", MEASURES_LIST, "", "mean")
+test = create_custom_object(data,
+'''
+data::object#
+    $salle::list#
+        $time::list#
+            $inconforts
+            $entity_id
+            $mesure
+            $_value
+            ::classAttributes#
+''')
+print(test)
+
 
 

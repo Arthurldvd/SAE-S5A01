@@ -8,11 +8,18 @@ query_api = None
 
 def init_influxdb():
     global query_api
-    client = InfluxDBClient(
+    client_iut = InfluxDBClient(
         url='51.83.36.122:8086',
         token='q4jqYhdgRHuhGwldILZ2Ek1WzGPhyctQ3UgvOII-bcjEkxqqrIIacgePte33CEjekqsymMqWlXnO0ndRhLx19g==',
         org='INFO',
         bucket='iut_bucket'
+    )
+
+    client = InfluxDBClient(
+        url='51.83.36.122:8086',
+        token='q4jqYhdgRHuhGwldILZ2Ek1WzGPhyctQ3UgvOII-bcjEkxqqrIIacgePte33CEjekqsymMqWlXnO0ndRhLx19g==',
+        org='INFO',
+        bucket='pochatsa_bucket'
     )
 
     query_api = client.query_api()
@@ -38,7 +45,7 @@ def filter_data(bucket, tStart, tEnd, tInterval, measures, salle, output="mean")
 
     from(bucket: "{bucket}")
           |> range(start: {tStart}, stop: {tEnd})
-          |> filter(fn: (r) => r["_field"] == "value")
+          |> filter(fn: (r) => r["_field"] =~ /_value|value/)
           |> filter(fn: (r) => strings.hasPrefix(v: r["entity_id"], prefix: "{salle}"))
           |> aggregateWindow(every: {tInterval}, fn: mean, createEmpty: false)
           |> yield(name: "{output}")

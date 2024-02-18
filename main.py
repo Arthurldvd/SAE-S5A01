@@ -3,6 +3,7 @@ from functools import reduce
 
 from flask import Flask, request, jsonify
 
+from complexDictCreator import create_custom_object
 from ia_prediction import predict_temperature
 from incomfort_constraints import modify_object
 from influxdb_service import filter_data
@@ -107,7 +108,17 @@ def data():
         "Interval is not in a correct format.")
 
     filtered_data = filter_data(bucket, tStart, tEnd, tInterval, measures, salle, output)
-    return {'data': modify_object(filtered_data, discomfort, harmonizeData, supressError)}
+    return create_custom_object(filtered_data,
+        '''
+        data::object#
+            $time::list#
+                $salle::list#
+                    $inconforts
+                    $entity_id
+                    $mesure
+                    $_value
+                    ::classAttributes#
+        ''')
 
 
 @app.route('/ia_prediction')
