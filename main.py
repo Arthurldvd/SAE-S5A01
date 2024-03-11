@@ -113,11 +113,12 @@ def data():
         data::object#
             $time::list#
                 $salle::list#
-                    $inconforts
-                    $entity_id
-                    $mesure
-                    $_value
-                    ::classAttributes#
+                    $mesure::list#
+                        $inconforts
+                        $entity_id
+                        $mesure
+                        $_value
+                        ::classAttributes#
         ''')
 
 
