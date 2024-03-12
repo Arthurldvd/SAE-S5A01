@@ -112,7 +112,7 @@ def test_ai_lumiere(data_testing, prediction_hour):
 
     input_sequence = np.array(X_test)
     # input_sequence = input_sequence.reshape(-1, 2, PACKET_SIZE)
-
+-qt
     loss = model.evaluate(X_test, y_test, verbose=0)
     print(f"Test Loss: {loss}")
 
