@@ -27,9 +27,10 @@ def request_influxBD(query_string):
 
     return data
 
-def filter_data(bucket, tStart, tEnd, tInterval, measures, salle, output="mean"):
+def filter_data(tStart, tEnd, tInterval, measures, salle, output="mean"):
     #|> filter(fn: (r) => r["_measurement"] =~ {measures})
-    measures = convert_regex(measures)
+    # measures = convert_regex(measures)
+    bucket = "IUT_BUCKET"
 
     init_influxdb()
     request = f'''
@@ -49,4 +50,7 @@ def filter_data(bucket, tStart, tEnd, tInterval, measures, salle, output="mean")
 
 def convert_regex(table):
     table = [element.replace('/', '\/') for element in table]
-    return "/" + reduce(lambda acc, val: f'{acc}|{val}', map(str, table)) + "/"
+
+    if isinstance(table, list):
+        return "/" + reduce(lambda acc, val: f'{acc}|{val}', map(str, table)) + "/"
+    return table

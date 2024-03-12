@@ -3,7 +3,7 @@ from functools import reduce
 
 from flask import Flask, request, jsonify
 
-from ia_prediction import predict_temperature
+from ia_prediction_temp import predict_temperature
 from incomfort_constraints import modify_object
 from influxdb_service import filter_data
 from window_detection import window_detection

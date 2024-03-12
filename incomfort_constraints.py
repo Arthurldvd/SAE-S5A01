@@ -21,15 +21,15 @@ def init_conditions():
         # Constraints
         ConditionsInfo('TG21', 'Température', lambda data: data > 21, "La température excède 21°", "temperature", True),
         ConditionsInfo('TL19', 'Température', lambda data: data < 19, "La température baisse 19°", "temperature", True),
-        ConditionsInfo('TL19', 'co2 Dew', lambda data: data > 21, "La température baisse 19°", "temperature", True), #!!!!
-        ConditionsInfo('TL19', 'co2 Dew', lambda data: data < 19, "La température baisse 19°", "temperature", True), # !!!!
-        ConditionsInfo('CG5K', 'Co2', lambda data: data > 5000, "La concentration de CO2 dépasse 5000°", "co2", True),
-        ConditionsInfo('CG5K', 'Co2 Volatile', lambda data: data > 5, "La quantité de CO2 volatile dépasse 5", "co2", True), # !!!!
+        ConditionsInfo('CG18', 'co2 Dew', lambda data: data > 18, "La salle contient bcp de CO2 humide", "co2", True), #!!!!
+        ConditionsInfo('CL05', 'co2 Dew', lambda data: data < 5, "La salle est sèche", "co2", True), # !!!!
+        ConditionsInfo('CG5K', 'Co2', lambda data: data > 1000, "La concentration de CO2 dépasse 1000°", "co2", True),
+        ConditionsInfo('CG5K', 'Co2 Volatile', lambda data: data > 2, "La quantité de CO2 volatile dépasse 2", "co2", True), # !!!!
         ConditionsInfo('DL10', 'Décibels', lambda data: data > 10, "Le niveau de décibel dépasse 10°", "db", True),
         ConditionsInfo('HG50', 'Humidité', lambda data: data > 50, "Le taux d'humidité dépasse 50%", "humidity", True),
-        ConditionsInfo('HG50', 'Fumée', lambda data: data > 50, "Le taux de fumée dépasse 50%", "humidity", True), # !!!!
-        ConditionsInfo('HG50', 'Luminosité', lambda data: data > 50, "Le taux de lumière dépasse 50%", "humidity", True),
-        ConditionsInfo('PG10', 'Particules', lambda data: data > 10, "Le niveau de particules dépasse 10 µg/m³", "co2", True), # !!!!
+        ConditionsInfo('HG50', 'Fumée', lambda data: data > 50, "Le taux de fumée dépasse 50%", "fumee", True), # !!!!
+        ConditionsInfo('HG50', 'Luminosité', lambda data: data > 50, "Le taux de lumière dépasse 50%", "luminosite", True),
+        ConditionsInfo('PG10', 'Particules', lambda data: data > 10, "Le niveau de particules dépasse 10 µg/m³", "particules", True), # !!!!
 
         ConditionsInfo('BSHP', 'binary_sensor.d251_1_co2_highly_polluted', lambda data: data == 1, "La salle est très polluée", "co2", True),
         ConditionsInfo('BSHP', 'binary_sensor.d231_1_co2_highly_polluted', lambda data: data == 1, "La salle est très polluée", "co2", True),
