@@ -82,10 +82,10 @@ def harmonize_data(filtered_data: [Record]):
     harmonized_data.inconforts = list(set([x.inconforts for x in filtered_data if x.inconforts is not None]))
     return harmonized_data
 def suppress_errors_data(filtered_data):
-    # THRESHOLD TO DEFINE
+    THRESHOLD = 3
 
     z_scores = zscore([x._value for x in filtered_data])
-    obsolete_data_index = [index for index, value in enumerate(z_scores) if abs(value) > 3]
+    obsolete_data_index = [index for index, value in enumerate(z_scores) if abs(value) > THRESHOLD]
     filtered_data = [value for index, value in enumerate(filtered_data) if index not in obsolete_data_index]
     return filtered_data
 

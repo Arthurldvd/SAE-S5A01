@@ -66,13 +66,12 @@ app = Flask(__name__)
 
 @app.route('/data')
 def data():
-    required_args = ['bucket', 'start', 'end', 'interval']
+    required_args = ['start', 'end', 'interval']
     for arg in required_args:
         if arg not in request.args:
             return error(f'Missing argument: {arg}')
 
     # Getting parameters
-    bucket = parseArray(request.args.get('bucket'))
     tStart = int(request.args.get('start'))
     tEnd = int(request.args.get('end'))
     tInterval = request.args.get('interval')
@@ -86,9 +85,6 @@ def data():
     # Verification
     if not isinstance(harmonizeData, bool):
         return error("harmonizeData should be a boolean")
-
-    bucket = BUCKET_LIST[0] if bucket is None else [m for m in bucket if m in BUCKET_LIST][0] or error(
-        f"Unknown measure(s): {', '.join(set(bucket) - set(BUCKET_LIST))}")
 
     measures = MEASURES_LIST if measures is None else [m for m in measures if m in MEASURES_LIST] or error(
         f"Unknown measure(s): {', '.join(set(measures) - set(MEASURES_LIST))}")
@@ -105,7 +101,7 @@ def data():
     if not (re.match(r'^[1-9]+\d*(m|h|d|w|mo|y)$', str(tInterval))): return error(
         "Interval is not in a correct format.")
 
-    filtered_data = filter_data(bucket, tStart, tEnd, tInterval, measures, salle, output)
+    filtered_data = filter_data(tStart, tEnd, tInterval, measures, salle, output)
     return {'data': modify_object(filtered_data, discomfort, harmonizeData, supressError)}
 
 
@@ -154,5 +150,4 @@ def regex_match(input_string, regex_pattern):
     return re.match(regex_pattern, input_string)
 
 test = filter_data("1709801890", "1710406690", "1d", MEASURES_LIST, "d251", None)
-test = modify_object(test, DISCOMFORT_LIST, True, False)
-print(test)
+test = modify_object(test, DISCOMFORT_LIST, True, True)
