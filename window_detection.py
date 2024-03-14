@@ -17,7 +17,7 @@ def window_detection():
         '''
     )
 
-    data = create_dict_classified(data, False, False, "time")
+    data = create_dict_classified(data, False, "time")
 
     stored_scores = []
 

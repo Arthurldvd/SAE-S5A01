@@ -12,6 +12,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Input
 
 from influxdb_service import filter_data, init_influxdb
+from main import setup_errors
 
 NUMBER_EPOCHS = 200
 PACKET_SIZE = 6
@@ -38,6 +39,7 @@ def get_training_data(tStart, tEnd, tInterval, measures, salle):
     #   |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)
     #   |> yield(name: "mean")'''
     data = filter_data(tStart, tEnd, tInterval, measures, salle)
+    data = setup_errors(data)
     data.sort(key=lambda x: x.time)
     return data
 

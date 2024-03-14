@@ -5,7 +5,7 @@ from numpy import average, where, abs
 from Model.Record import Record
 from scipy.stats import zscore
 
-def create_dict_classified(data, harmonizeData, supressErrors, *fields):
+def create_dict_classified(data, harmonizeData, *fields):
 
     def classify_data(data, fields):
         if len(fields) == 0:
@@ -31,8 +31,6 @@ def create_dict_classified(data, harmonizeData, supressErrors, *fields):
 
         return classified_data
     def classify_data_last_field(filtered_data):
-        if supressErrors:
-            filtered_data = suppress_errors_data(filtered_data)
         if harmonizeData:
             filtered_data = harmonize_data(filtered_data)
 
@@ -81,10 +79,12 @@ def harmonize_data(filtered_data: [Record]):
     )
     harmonized_data.inconforts = list(set([x.inconforts for x in filtered_data if x.inconforts is not None]))
     return harmonized_data
+
 def suppress_errors_data(filtered_data):
-    THRESHOLD = 3
+    THRESHOLD = 2.5
 
     z_scores = zscore([x._value for x in filtered_data])
+    print(z_scores)
     obsolete_data_index = [index for index, value in enumerate(z_scores) if abs(value) > THRESHOLD]
     filtered_data = [value for index, value in enumerate(filtered_data) if index not in obsolete_data_index]
     return filtered_data

@@ -3,6 +3,7 @@ from functools import reduce
 
 from flask import Flask, request, jsonify
 
+from complexDictCreator import suppress_errors_data
 from incomfort_constraints import modify_object
 from influxdb_service import filter_data
 from window_detection import window_detection
@@ -80,7 +81,10 @@ def data():
     output = parseArray(request.args.get('output'))
     salle = request.args.get('salle', "")
     supressError = request.args.get('supress_errors', False, type=bool)
-    harmonizeData = request.args.get('harmonize_data', True, type=bool)
+    harmonizeData = request.args.get('harmonize_data', False, type=bool)
+    print(request.args.get('harmonize_data', True, type=bool))
+    print(request.args.get('harmonize_data'))
+    print(harmonizeData)
 
     # Verification
     if not isinstance(harmonizeData, bool):
@@ -102,7 +106,9 @@ def data():
         "Interval is not in a correct format.")
 
     filtered_data = filter_data(tStart, tEnd, tInterval, measures, salle, output)
-    return {'data': modify_object(filtered_data, discomfort, harmonizeData, supressError)}
+    if supressError:
+        filtered_data = setup_errors(filtered_data)
+    return {'data': modify_object(filtered_data, discomfort, harmonizeData)}
 
 
 @app.route('/ia_prediction')
@@ -145,9 +151,19 @@ def ia_prediction():
 def window():
     return window_detection()
 
+def setup_errors(data):
+    data_wtht_errors = []
+    entities = set([x.entity_id for x in data])
+    for e in entities:
+        data_wtht_errors += suppress_errors_data([x for x in data if x.entity_id == e])
+
+    return data_wtht_errors
 
 def regex_match(input_string, regex_pattern):
     return re.match(regex_pattern, input_string)
 
-test = filter_data("1709801890", "1710406690", "1d", MEASURES_LIST, "d251", None)
-test = modify_object(test, DISCOMFORT_LIST, True, True)
+test = filter_data("1706310000", "1706331600", "20m", MEASURES_LIST, "d251_1_co2_air_temperature", None)
+test = setup_errors(test)
+test = modify_object(test, DISCOMFORT_LIST, True)
+print(test)
+

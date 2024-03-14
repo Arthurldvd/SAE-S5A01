@@ -54,17 +54,17 @@ def get_constraints(filter=None):
         return init_conditions()
     return [c for c in init_conditions() if c.type in filter]
 
-def modify_object(data: Record, constraints, harmonizeData, supressError):
-    print([x._value for x in data])
+def modify_object(data: Record, constraints, harmonizeData):
     # POUR CHAQUE TEMPS, AJOUT DE CONTRAINTES SI UNE DES CONTRAINTES PROBLEME
     for constraint in get_constraints(constraints):
         [setattr(x, 'inconforts', constraint.code) for x in data
         if x.mesure == constraint.field and constraint.conditions(x._value)]
 
     # DICTIONNAIRE / REUNISSEMENT DES DONNEES (GROUP BY) EN FONCTION DU TEMPS
-    classified_data = create_dict_classified(data, harmonizeData, supressError, "salle", "time", "mesure")
+    classified_data = create_dict_classified(data, harmonizeData, "salle", "time", "mesure")
     classified_data = convert_to_json_serializable(classified_data)
     return classified_data
+
 
 MEASURES_LIST = ['%', 'dBA', 'ppm', '°C', 'µg/m³', 'lx',
                  "binary_sensor.d251_1_co2_highly_polluted",
