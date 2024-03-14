@@ -152,3 +152,7 @@ def window():
 
 def regex_match(input_string, regex_pattern):
     return re.match(regex_pattern, input_string)
+
+test = filter_data("1709801890", "1710406690", "1d", MEASURES_LIST, "d251", None)
+test = modify_object(test, DISCOMFORT_LIST, True, False)
+print(test)

@@ -10,7 +10,7 @@ def get_mesure(record):
     return mesure_name
 
 mesures_iut = [
-    Mesure('Humidité', lambda record: record._measurement == '%' and record.entity_id.contains('humidity')),
+    Mesure('Humidité', lambda record: record._measurement == '%' and 'humidity' in record.entity_id),
     Mesure('Fumée', lambda record: record._measurement == '%' and record.entity_id == 'd351_1_multisensor9_smoke_density'),
     Mesure(lambda record: record._measurement, lambda record: record._measurement.startswith('binary_sensor')),
     Mesure('Décibels', lambda record: record._measurement == 'dBA'),
@@ -29,11 +29,11 @@ mesures_tetras = [
     Mesure('Battery', lambda record: record._measurement == '%' and record.friendly_name.endswith('battery level')),
     Mesure('Décibels', lambda record: record._measurement == 'dBA'),
     Mesure('Luminosité', lambda record: record._measurement == 'lx'),
-    Mesure('Dioxide Co2', lambda record: record._measurement == 'ppm' and record.entity_id.contains('dioxide_co2')),
-    Mesure('Dioxide Co2', lambda record: record._measurement == 'ppm' and record.entity_id.contains('volatile_organic')),
+    Mesure('Dioxide Co2', lambda record: record._measurement == 'ppm' and 'dioxide_co2' in record.entity_id),
+    Mesure('Dioxide Co2', lambda record: record._measurement == 'ppm' and 'volatile_organic' in record.entity_id),
     Mesure(lambda record: record.entity_id, lambda record: record._measurement == 'units'),
-    Mesure('Température', lambda record: record._measurement == '°C' and record.entity_id.contains('air_temperature')),
-    Mesure('co2 Dew', lambda record: record._measurement == '°C' and record.entity_id.contains('dew_point')),
+    Mesure('Température', lambda record: record._measurement == '°C' and 'air_temperature' in record.entity_id),
+    Mesure('co2 Dew', lambda record: record._measurement == '°C' and 'dew_point' in record.entity_id),
     Mesure('Particules', lambda record: record._measurement == 'µg/m³'),
 ]
 

@@ -4,24 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d98077fd-1dc7-4751-974f-44d5f1edde7c" name="Changes" comment="object creator ++">
+    <list default="true" id="d98077fd-1dc7-4751-974f-44d5f1edde7c" name="Changes" comment="push pour axel rourou">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/clusterCreator.py" beforeDir="false" afterPath="$PROJECT_DIR$/clusterCreator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ia_model/lumiere/fingerprint.pb" beforeDir="false" afterPath="$PROJECT_DIR$/ia_model/lumiere/fingerprint.pb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ia_model/lumiere/saved_model.pb" beforeDir="false" afterPath="$PROJECT_DIR$/ia_model/lumiere/saved_model.pb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ia_model/lumiere/variables/variables.data-00000-of-00001" beforeDir="false" afterPath="$PROJECT_DIR$/ia_model/lumiere/variables/variables.data-00000-of-00001" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ia_model/lumiere/variables/variables.index" beforeDir="false" afterPath="$PROJECT_DIR$/ia_model/lumiere/variables/variables.index" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ia_model/temperature/fingerprint.pb" beforeDir="false" afterPath="$PROJECT_DIR$/ia_model/temperature/fingerprint.pb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ia_model/temperature/saved_model.pb" beforeDir="false" afterPath="$PROJECT_DIR$/ia_model/temperature/saved_model.pb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ia_model/temperature/variables/variables.data-00000-of-00001" beforeDir="false" afterPath="$PROJECT_DIR$/ia_model/temperature/variables/variables.data-00000-of-00001" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ia_model/temperature/variables/variables.index" beforeDir="false" afterPath="$PROJECT_DIR$/ia_model/temperature/variables/variables.index" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ia_prediction_lum.py" beforeDir="false" afterPath="$PROJECT_DIR$/ia_prediction_lum.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ia_prediction_lum2.py" beforeDir="false" afterPath="$PROJECT_DIR$/ia_prediction_lum2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ia_prediction_temp.py" beforeDir="false" afterPath="$PROJECT_DIR$/ia_prediction_temp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ia_prediction_temp2.py" beforeDir="false" afterPath="$PROJECT_DIR$/ia_prediction_temp2.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/incomfort_constraints.py" beforeDir="false" afterPath="$PROJECT_DIR$/incomfort_constraints.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/window_detection.py" beforeDir="false" afterPath="$PROJECT_DIR$/window_detection.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,7 +55,7 @@
       <recent name="C:\Users\Tristan\Desktop\TAF\SAE-S5A01" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.window_detection">
+  <component name="RunManager" selected="Python.main">
     <configuration name="ia_prediction_lum" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SAE-S5A01" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -176,10 +163,10 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.main" />
         <item itemvalue="Python.window_detection" />
         <item itemvalue="Python.ia_prediction_temp (1)" />
         <item itemvalue="Python.ia_prediction_lum" />
-        <item itemvalue="Python.main" />
         <item itemvalue="Python.ia_prediction_lum2" />
       </list>
     </recent_temporary>
@@ -382,7 +369,14 @@
       <option name="project" value="LOCAL" />
       <updated>1710250725464</updated>
     </task>
-    <option name="localTasksCounter" value="28" />
+    <task id="LOCAL-00028" summary="push pour axel rourou">
+      <created>1710406539875</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1710406539875</updated>
+    </task>
+    <option name="localTasksCounter" value="29" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -408,15 +402,16 @@
     <MESSAGE value="object" />
     <MESSAGE value="hjh" />
     <MESSAGE value="object creator ++" />
-    <option name="LAST_COMMIT_MESSAGE" value="object creator ++" />
+    <MESSAGE value="push pour axel rourou" />
+    <option name="LAST_COMMIT_MESSAGE" value="push pour axel rourou" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/window_detection.py</url>
-          <line>51</line>
-          <option name="timeStamp" value="5" />
+          <url>file://$PROJECT_DIR$/main.py</url>
+          <line>157</line>
+          <option name="timeStamp" value="13" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

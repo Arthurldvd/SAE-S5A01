@@ -24,7 +24,7 @@ def init_conditions():
         ConditionsInfo('CG18', 'co2 Dew', lambda data: data > 18, "La salle contient bcp de CO2 humide", "co2", True), #!!!!
         ConditionsInfo('CL05', 'co2 Dew', lambda data: data < 5, "La salle est sèche", "co2", True), # !!!!
         ConditionsInfo('CG5K', 'Co2', lambda data: data > 2000, "La concentration de CO2 dépasse 2000°", "co2", True),
-        ConditionsInfo('CG5K', 'Co2 Volatile', lambda data: data > 2, "La quantité de CO2 volatile dépasse 2", "co2", True), # !!!!
+        ConditionsInfo('CG02', 'Co2 Volatile', lambda data: data > 2, "La quantité de CO2 volatile dépasse 2", "co2", True), # !!!!
         ConditionsInfo('DL10', 'Décibels', lambda data: data > 10, "Le niveau de décibel dépasse 10°", "db", True),
         ConditionsInfo('HG50', 'Humidité', lambda data: data > 50, "Le taux d'humidité dépasse 50%", "humidity", True),
         ConditionsInfo('HG50', 'Fumée', lambda data: data > 50, "Le taux de fumée dépasse 50%", "fumee", True), # !!!!
@@ -83,8 +83,5 @@ MEASURES_LIST = ['%', 'dBA', 'ppm', '°C', 'µg/m³', 'lx',
                  "binary_sensor.d360_1_co2_moderately_polluted"
                  "binary_sensor.d360_1_co2_slightly_polluted"
                  "binary_sensor.d360_1_co2_multisensor_motion_detection"]
-
-filtered_data = filter_data("IUT_BUCKET", "1700703993", "1703172412", "1h", MEASURES_LIST, "", "mean")
-filtered_data = modify_object(filtered_data, None, True, False)
 
 
