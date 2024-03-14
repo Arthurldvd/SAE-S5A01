@@ -24,7 +24,7 @@ def train_temperature(tStart, tEnd, tInterval, measures, salle, prediction_hour)
     # ont du sens
     #4 filtrer la requete sur une seule salle
     data = get_training_data(tStart, tEnd, tInterval, measures, salle)
-    return train_ai_temperature(data_for_training(data, PACKET_SIZE), datetime.utcfromtimestamp(int(prediction_hour)))
+    return train_ai_temperature(data_for_training(data, PACKET_SIZE), datetime.fromtimestamp(int(prediction_hour)))
 
 def get_training_data(tStart, tEnd, tInterval, measures, salle):
     # request = '''
@@ -94,20 +94,18 @@ def train_ai_temperature(data_training, prediction_hour):
     return LAST_EPOCH_RESULT
 
 def test_temperature(prediction_hour):
-    tEnd = datetime.utcfromtimestamp(int(prediction_hour)).timestamp()
-    tStart = (datetime.utcfromtimestamp(tEnd) - timedelta(hours=PACKET_SIZE)).timestamp()
+    tEnd = datetime.fromtimestamp(int(prediction_hour)).timestamp()
+    tStart = (datetime.fromtimestamp(tEnd) - timedelta(hours=PACKET_SIZE)).timestamp()
     data = filter_data(int(tStart), int(tEnd), "1h", ["Température"], "d251_1_co2_air_temperature")
 
     test_ai_temperature(data_for_training(data, PACKET_SIZE), prediction_hour)
-
-
 
 def test_ai_temperature(data_testing, prediction_hour):
     model = load_model(MODEL_PATH)
 
     X_test, y_test = create_sequences_with_targets(data_testing)
 
-    prediction_hour = datetime.utcfromtimestamp(int(prediction_hour))
+    prediction_hour = datetime.fromtimestamp(int(prediction_hour))
     prediction_hour = int(f"{prediction_hour.month}{prediction_hour.day}{prediction_hour.hour}")
 
     input_sequence = np.array(X_test)

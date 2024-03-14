@@ -2,6 +2,7 @@ import os
 from datetime import datetime, timedelta
 
 import numpy as np
+import matplotlib.pyplot as plt
 import tensorflow as tf
 from keras.src.callbacks import Callback, ModelCheckpoint
 from keras.src.engine.input_layer import InputLayer
@@ -24,7 +25,7 @@ def train_lumiere(tStart, tEnd, tInterval, measures, salle, prediction_hour):
     # ont du sens
     #4 filtrer la requete sur une seule salle
     data = get_training_data(tStart, tEnd, tInterval, measures, salle)
-    return train_ai_lumiere(data_for_training(data, PACKET_SIZE), datetime.utcfromtimestamp(int(prediction_hour)))
+    return train_ai_lumiere(data_for_training(data, PACKET_SIZE), datetime.fromtimestamp(int(prediction_hour)))
 
 def get_training_data(tStart, tEnd, tInterval, measures, salle):
     # request = '''
@@ -96,28 +97,60 @@ def train_ai_lumiere(data_training, prediction_hour):
 
     return LAST_EPOCH_RESULT
 
-def test_lumiere(prediction_hour):
-    tEnd = datetime.utcfromtimestamp(int(prediction_hour)).timestamp()
-    tStart = (datetime.utcfromtimestamp(tEnd) - timedelta(hours=PACKET_SIZE)).timestamp()
-    data = filter_data(int(tStart), int(tEnd), "1h", ["Luminosité"], "d351_1_multisensor9_illuminance")
-
-    test_ai_lumiere(data_for_training(data, PACKET_SIZE), prediction_hour)
-def test_ai_lumiere(data_testing, prediction_hour):
+def test_lumiere(prediction_hour_b, prediction_hour_b_e):
+    init_influxdb()
     model = load_model(MODEL_PATH)
 
+    number_hours = int((datetime.fromtimestamp(int(prediction_hour_b_e)) -
+                        datetime.fromtimestamp(int(prediction_hour_b))).total_seconds() / 3600)
+    tStart = (datetime.fromtimestamp(int(prediction_hour_b)) - timedelta(hours=PACKET_SIZE)).timestamp()
+    tEnd = datetime.fromtimestamp(int(prediction_hour_b_e)).timestamp()
+    data = filter_data(int(tStart), int(tEnd), "1h", ["Luminosité"], "d351_1_multisensor9_illuminance")
+
+    data_testing = data_for_training(data, PACKET_SIZE)
     X_test, y_test = create_sequences_with_targets(data_testing)
 
-    prediction_hour = datetime.utcfromtimestamp(int(prediction_hour))
+    result = []
+    for i in range(len(X_test)):
+        result.append(test_ai_lumiere_u(model, X_test[i], y_test[i], (
+            datetime.fromtimestamp(int(tStart)) + timedelta(hours=PACKET_SIZE+i)).timestamp())
+        )
+
+    print(result)
+
+    #-------------------------------------#
+    plt.plot(
+        [x.time.strftime("%m-%d %H:%M") for x in data if x.time.replace(tzinfo=None) >= datetime.fromtimestamp(int(prediction_hour_b))],
+        [x._value for x in data if x.time.replace(tzinfo=None) >= datetime.fromtimestamp(int(prediction_hour_b))],
+        label='List 1'
+    )
+    plt.plot(
+        [x[1].strftime("%m-%d %H:%M") for x in result if x[1].replace(tzinfo=None) >= datetime.fromtimestamp(int(prediction_hour_b))],
+        [x[0] for x in result if x[1].replace(tzinfo=None) >= datetime.fromtimestamp(int(prediction_hour_b))],
+        label='List 2'
+    )
+
+    plt.xlabel('Date')
+    plt.ylabel('Value')
+    plt.title('Comparison of List 1 and List 2')
+    plt.legend()
+
+    plt.xticks(rotation=45)
+    plt.show()
+
+def test_ai_lumiere_u(model, X_test, y_test, prediction_hour):
+    prediction_hour_final = prediction_hour
+    prediction_hour = datetime.fromtimestamp(int(prediction_hour))
     prediction_hour = int(prediction_hour.strftime('%H'))
 
-    input_sequence = np.array(X_test)
-    # input_sequence = input_sequence.reshape(-1, 2, PACKET_SIZE)
--qt
+    X_test = np.array(X_test.reshape(-1, 2, PACKET_SIZE))
+    y_test = np.array([y_test])
+
     loss = model.evaluate(X_test, y_test, verbose=0)
     print(f"Test Loss: {loss}")
 
-    predicted_lumiere = model.predict(np.array(input_sequence), verbose=0)
-    return predicted_lumiere[0][0]
+    predicted_lumiere = model.predict(np.array(X_test), verbose=0)
+    return predicted_lumiere[0][0], datetime.fromtimestamp(prediction_hour_final)
 
 def create_sequences_with_targets(data):
     sequences = []
@@ -127,8 +160,8 @@ def create_sequences_with_targets(data):
         targets.append(entry['expected_lux'])
     return np.array(sequences), np.array(targets)
 
-train_lumiere("1700703993", "1703059200", "1h", ["Luminosité"], "d351_1_multisensor9_illuminance", "1703055600")
-test_lumiere("1703055600")
+# train_lumiere("1700703993", "1706059200", "1h", ["Luminosité"], "d351_1_multisensor9_illuminance", "1703055600")
+test_lumiere("1707091200", "1707188400")
 
 # predict_lumiere("1700703993", "1703059200", "1h", "µg\/m³", "d351_1_multisensor9_particulate_matter_2_5", "1703059200")
 

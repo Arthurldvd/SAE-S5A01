@@ -24,7 +24,7 @@ def train_lumiere(tStart, tEnd, tInterval, measures, salle, prediction_hour):
     # ont du sens
     #4 filtrer la requete sur une seule salle
     data = get_training_data(tStart, tEnd, tInterval, measures, salle)
-    return train_ai_lumiere(data_for_training(data), datetime.utcfromtimestamp(int(prediction_hour)))
+    return train_ai_lumiere(data_for_training(data), datetime.fromtimestamp(int(prediction_hour)))
 
 def get_training_data(tStart, tEnd, tInterval, measures, salle):
     # request = '''
@@ -98,8 +98,8 @@ def train_ai_lumiere(data_training, prediction_hour):
     return LAST_EPOCH_RESULT
 
 def test_lumiere(prediction_hour):
-    tEnd = datetime.utcfromtimestamp(int(prediction_hour)).timestamp()
-    tStart = (datetime.utcfromtimestamp(tEnd) - timedelta(hours=PACKET_SIZE)).timestamp()
+    tEnd = datetime.fromtimestamp(int(prediction_hour)).timestamp()
+    tStart = (datetime.fromtimestamp(tEnd) - timedelta(hours=PACKET_SIZE)).timestamp()
     data = filter_data(int(tStart), int(tEnd), "1h", ["Luminosité"], "d351_1_multisensor9_illuminance")
 
     test_ai_lumiere(data_for_training(data, PACKET_SIZE), prediction_hour)
@@ -108,7 +108,7 @@ def test_ai_lumiere(data_testing, prediction_hour):
 
     X_test, y_test = create_sequences_with_targets(data_testing)
 
-    prediction_hour = datetime.utcfromtimestamp(int(prediction_hour))
+    prediction_hour = datetime.fromtimestamp(int(prediction_hour))
     prediction_hour = int(prediction_hour.strftime('%H'))
 
     input_sequence = np.array(X_test)

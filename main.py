@@ -3,7 +3,6 @@ from functools import reduce
 
 from flask import Flask, request, jsonify
 
-from ia_prediction_temp import predict_temperature
 from incomfort_constraints import modify_object
 from influxdb_service import filter_data
 from window_detection import window_detection
@@ -141,8 +140,10 @@ def ia_prediction():
     if not (re.match(r'^[1-9]+\d*(m|h|d|w|mo|y)$', str(tInterval))): return error(
         "Interval is not in a correct format.")
 
-    filtered_data = predict_temperature(tStart, tEnd, tInterval, measures, salle, prediction_hour)
-    return str(filtered_data[0][0])
+    return []
+
+    # filtered_data = predict_temperature(tStart, tEnd, tInterval, measures, salle, prediction_hour)
+    # return str(filtered_data[0][0])
 
 @app.route('/window')
 def window():

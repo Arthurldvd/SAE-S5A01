@@ -1,9 +1,11 @@
 import os
 from datetime import datetime, timedelta
+import matplotlib.pyplot as plt
 
 import numpy as np
 import tensorflow as tf
 from keras.src.callbacks import Callback, ModelCheckpoint
+from keras.src.engine.input_layer import InputLayer
 from keras.src.optimizers import Adam
 from keras.src.saving.saving_api import load_model
 from tensorflow.keras.models import Sequential
@@ -11,7 +13,7 @@ from tensorflow.keras.layers import LSTM, Dense, Input
 
 from influxdb_service import filter_data, init_influxdb
 
-NUMBER_EPOCHS = 50
+NUMBER_EPOCHS = 30
 PACKET_SIZE = 6
 MODEL_PATH = "./ia_model/temperature"
 
@@ -23,7 +25,7 @@ def train_temperature(tStart, tEnd, tInterval, measures, salle, prediction_hour)
     # ont du sens
     #4 filtrer la requete sur une seule salle
     data = get_training_data(tStart, tEnd, tInterval, measures, salle)
-    return train_ai_temperature(data_for_training(data, PACKET_SIZE), datetime.utcfromtimestamp(int(prediction_hour)))
+    return train_ai_temperature(data_for_training(data, PACKET_SIZE), datetime.fromtimestamp(int(prediction_hour)))
 
 def get_training_data(tStart, tEnd, tInterval, measures, salle):
     # request = '''
@@ -44,7 +46,7 @@ def data_for_training(data, packet_size):
     for i in range(len(data) - packet_size):
         DFT = {
             'previous_temp': [d._value for d in data[i:i + packet_size]],
-            'previous_hours': [int(f"{d.time.month}{d.time.day}{d.time.hour}") for d in data[i:i + packet_size]],
+            'previous_hours': [uni_date(d.time) for d in data[i:i + packet_size]],
             'expected_temp': data[i + packet_size]._value
         }
         data_for_training.append(DFT)
@@ -52,13 +54,16 @@ def data_for_training(data, packet_size):
     return data_for_training
 
 def train_ai_temperature(data_training, prediction_hour):
+    prediction_hour = uni_date(prediction_hour)
     X, y = create_sequences_with_targets(data_training)
 
-    # Model architecture
     model = Sequential()
-    model.add(LSTM(1, activation='relu', return_sequences=True, input_shape=(2, PACKET_SIZE), kernel_initializer='glorot_uniform'))
-    model.add(LSTM(10))
-    model.add(Dense(1))
+    model.add(InputLayer((2, 6)))
+    model.add(LSTM(100, return_sequences=True))
+    model.add(LSTM(100, return_sequences=True))
+    model.add(LSTM(50))
+    model.add(Dense(8, activation='relu'))
+    model.add(Dense(1, activation='linear'))
     optimizer = Adam(learning_rate=0.001)
     model.compile(optimizer=optimizer, loss='mse')
 
@@ -75,11 +80,10 @@ def train_ai_temperature(data_training, prediction_hour):
                 LAST_EPOCH_RESULT = predicted_temperature
 
     # -------------------------------- A VIRER QUAND LE MODELE MARCHE -------------------------------------
-    prediction_hour = int(f"{prediction_hour.month}{prediction_hour.day}{prediction_hour.hour}")
-    input_sequence_entry = np.where(np.array([_x[0][len(_x[0]) - 1] == prediction_hour for _x in X]))[0][0]
-    print(f"NOUS VOULONS PREDIRE :  {y[input_sequence_entry - 1]}")
+    input_sequence_entry = max(np.where(np.array([_x == prediction_hour for _x in X]))[0])
+    print(f"NOUS VOULONS PREDIRE :  {y[input_sequence_entry]}")
 
-    input_sequence = [np.array(X[input_sequence_entry - 1][0]), np.array(X[input_sequence_entry - 1][1])]
+    input_sequence = [np.array(X[input_sequence_entry][0]), np.array(X[input_sequence_entry][1])]
     input_sequence = np.array(input_sequence)
     input_sequence = input_sequence.reshape(-1, 2, PACKET_SIZE)
     # -------------------------------- A VIRER QUAND LE MODELE MARCHE -------------------------------------
@@ -90,31 +94,58 @@ def train_ai_temperature(data_training, prediction_hour):
 
     return LAST_EPOCH_RESULT
 
-def test_temperature(prediction_hour):
-    tEnd = datetime.utcfromtimestamp(int(prediction_hour)).timestamp()
-    tStart = (datetime.utcfromtimestamp(tEnd) - timedelta(hours=PACKET_SIZE)).timestamp()
-    data = filter_data(int(tStart), int(tEnd), "1h", ["Température"], "d251_1_co2_air_temperature")
-
-    test_ai_temperature(data_for_training(data, PACKET_SIZE), prediction_hour)
-
-
-
-def test_ai_temperature(data_testing, prediction_hour):
+def test_temperature(prediction_hour_b, prediction_hour_b_e):
     model = load_model(MODEL_PATH)
 
+    number_hours = int((datetime.fromtimestamp(int(prediction_hour_b_e)) -
+                        datetime.fromtimestamp(int(prediction_hour_b))).total_seconds() / 3600)
+    tStart = (datetime.fromtimestamp(int(prediction_hour_b)) - timedelta(hours=PACKET_SIZE)).timestamp()
+    tEnd = datetime.fromtimestamp(int(prediction_hour_b_e)).timestamp()
+    data = filter_data(int(tStart), int(tEnd), "1h", ["Température"], "d251_1_co2_air_temperature")
+
+    data_testing = data_for_training(data, PACKET_SIZE)
     X_test, y_test = create_sequences_with_targets(data_testing)
 
-    prediction_hour = datetime.utcfromtimestamp(int(prediction_hour))
-    prediction_hour = int(f"{prediction_hour.month}{prediction_hour.day}{prediction_hour.hour}")
+    result = []
+    for i in range(len(X_test)):
+        result.append(test_ai_temperature_u(model, X_test[i], y_test[i], (
+            datetime.fromtimestamp(int(tStart)) + timedelta(hours=PACKET_SIZE+i)).timestamp())
+        )
 
-    input_sequence = np.array(X_test)
-    # input_sequence = input_sequence.reshape(-1, 2, PACKET_SIZE)
+    print(result)
+
+    #-------------------------------------#
+    plt.plot(
+        [x.time.strftime("%m-%d %H:%M") for x in data if x.time.replace(tzinfo=None) >= datetime.fromtimestamp(int(prediction_hour_b))],
+        [x._value for x in data if x.time.replace(tzinfo=None) >= datetime.fromtimestamp(int(prediction_hour_b))],
+        label='List 1'
+    )
+    plt.plot(
+        [x[1].strftime("%m-%d %H:%M") for x in result if x[1].replace(tzinfo=None) >= datetime.fromtimestamp(int(prediction_hour_b))],
+        [x[0] for x in result if x[1].replace(tzinfo=None) >= datetime.fromtimestamp(int(prediction_hour_b))],
+        label='List 2'
+    )
+
+    plt.xlabel('Date')
+    plt.ylabel('Value')
+    plt.title('Comparison of List 1 and List 2')
+    plt.legend()
+
+    plt.xticks(rotation=45)
+    plt.show()
+
+def test_ai_temperature_u(model, X_test, y_test, prediction_hour):
+    prediction_hour_final = prediction_hour
+    prediction_hour = uni_date(datetime.fromtimestamp(int(prediction_hour)))
+
+    X_test = np.array(X_test.reshape(-1, 2, PACKET_SIZE))
+    y_test = np.array([y_test])
 
     loss = model.evaluate(X_test, y_test, verbose=0)
     print(f"Test Loss: {loss}")
 
-    predicted_temperature = model.predict(np.array(input_sequence), verbose=0)
-    return predicted_temperature[0][0]
+    predicted_temperature = model.predict(np.array(X_test), verbose=0)
+    return predicted_temperature[0][0], datetime.fromtimestamp(prediction_hour_final)
 
 def create_sequences_with_targets(data):
     sequences = []
@@ -124,6 +155,9 @@ def create_sequences_with_targets(data):
         targets.append(entry['expected_temp'])
     return np.array(sequences), np.array(targets)
 
-# train_temperature("1700703993", "1703059200", "1h", ["Température"], "d251_1_co2_air_temperature", "1703055600")
-test_temperature("1703055600")
+def uni_date(datetime):
+    return int(datetime.strftime('%H'))
+
+train_temperature("1704096000", "1709798400", "1h", ["Température"], "d251_1_co2_air_temperature", "1709794800")
+test_temperature("1709794800", "1709852400")
 

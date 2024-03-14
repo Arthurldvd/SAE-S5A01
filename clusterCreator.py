@@ -10,7 +10,7 @@ def get_mesure(record):
     return mesure_name
 
 mesures_iut = [
-    Mesure('Humidité', lambda record: record._measurement == '%' and record.entity_id != 'd351_1_multisensor9_smoke_density'),
+    Mesure('Humidité', lambda record: record._measurement == '%' and record.entity_id.contains('humidity')),
     Mesure('Fumée', lambda record: record._measurement == '%' and record.entity_id == 'd351_1_multisensor9_smoke_density'),
     Mesure(lambda record: record._measurement, lambda record: record._measurement.startswith('binary_sensor')),
     Mesure('Décibels', lambda record: record._measurement == 'dBA'),

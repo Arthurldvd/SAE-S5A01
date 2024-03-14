@@ -7,10 +7,11 @@ def window_detection():
     data = request_influxBD(
         f'''    
         from(bucket: "IUT_BUCKET")
-          |> range(start: 1707404067, stop: 1708008870)
+          |> range(start: 1707404067, stop: 1707868800)
           |> filter(fn: (r) => r["_measurement"] == "°C" or r["_measurement"] == "µg/m³" or r["_measurement"] == "UV index")
           |> filter(fn: (r) => r["_field"] == "value")
           |> filter(fn: (r) => r["domain"] == "sensor")
+          |> filter(fn: (r) => r["entity_id"] == "d351_1_co2_air_temperature" or r["entity_id"] == "d351_1_co2_dew_point" or r["entity_id"] == "d351_2_co2_air_temperature" or r["entity_id"] == "d351_2_co2_dew_point")
           |> aggregateWindow(every: 20m, fn: mean, createEmpty: false)
           |> yield(name: "mean")
         '''
@@ -28,7 +29,7 @@ def window_detection():
         final_result = sum([sum(abs(sublist[i] - sublist[i + 1]) for i in range(len(sublist) - 1)) for sublist in lists])
         stored_scores.append(final_result)
 
-    indexes = [index for index, value in enumerate(stored_scores) if value > 17]
+    indexes = [index for index, value in enumerate(stored_scores) if value > 4]
 
     borne_inferieur = [indexes[i] for i in range(len(indexes) - 1) if indexes[i + 1] - indexes[i] != 1]
     borne_superieur = [indexes[i] for i in range(1, len(indexes)) if indexes[i] - indexes[i - 1] != 1]
@@ -51,4 +52,4 @@ def window_detection():
     return list_final_time
 
 
-window_detection()
+print(window_detection())
