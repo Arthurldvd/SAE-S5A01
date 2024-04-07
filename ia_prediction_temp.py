@@ -62,7 +62,6 @@ def train_ai_temperature(data_training, prediction_hour):
     model = Sequential()
     model.add(InputLayer((2, 6)))
     model.add(LSTM(100, return_sequences=True))
-    model.add(LSTM(50, return_sequences=True))
     model.add(LSTM(50))
     model.add(Dense(8, activation='relu'))
     model.add(Dense(1, activation='linear'))
@@ -160,6 +159,6 @@ def create_sequences_with_targets(data):
 def uni_date(datetime):
     return int(datetime.strftime('%H'))
 
-train_temperature("1707955200", "1709852400", "1h", ["Température"], "d251_1_co2_air_temperature", "1709794800")
-test_temperature("1709794800", "1709852400")
+# train_temperature("1700703993", "1709852400", "1h", ["Température"], "d251_1_co2_air_temperature", "1709794800")
+test_temperature("1706832000", "1707188400")
 

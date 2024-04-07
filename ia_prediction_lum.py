@@ -163,7 +163,7 @@ def create_sequences_with_targets(data):
     return np.array(sequences), np.array(targets)
 
 # train_lumiere("1700703993", "1706059200", "1h", ["Luminosité"], "d351_1_multisensor9_illuminance", "1703055600")
-test_lumiere("1707091200", "1707188400")
+test_lumiere("1706832000", "1707188400")
 
 # predict_lumiere("1700703993", "1703059200", "1h", "µg\/m³", "d351_1_multisensor9_particulate_matter_2_5", "1703059200")
 

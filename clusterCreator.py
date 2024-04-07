@@ -24,7 +24,7 @@ mesures_iut = [
 ]
 
 mesures_tetras = [
-    Mesure('Ultra violets', lambda record: record._measurement == 'UV Index' and record.friendly_name.endswith('Ultraviolet')),
+    Mesure('Ultra violets', lambda record: record._measurement == 'UV Index' and record.friendly_name.endswith('ultraviolet')),
     Mesure('Humidité', lambda record: record._measurement == '%' and not record.friendly_name.endswith('battery level')),
     Mesure('Battery', lambda record: record._measurement == '%' and record.friendly_name.endswith('battery level')),
     Mesure('Décibels', lambda record: record._measurement == 'dBA'),
